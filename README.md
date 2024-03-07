@@ -19,8 +19,6 @@ TextDraw Editor for SAMP.
 
 <h1>Changelog:</h1>
 V4.0 changelog:<br>
-<p>
-	- New function Global or Player Textdraw<br>
-	- New export mode (Mixed mode)<br>
-	- Hold the ALT key for better precision to edit the Textdraw<br>
-</p>
+    - New function Global or Player Textdraw<br>
+    - New export mode (Mixed mode)<br>
+    - Hold the ALT key for better precision to edit the Textdraw<br>

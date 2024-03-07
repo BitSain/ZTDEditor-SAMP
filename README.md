@@ -12,6 +12,7 @@ TextDraw Editor for SAMP.
 <br>
 -> Start of Development (Old): 25 December 2009, 22:16 (GMT-3)<br>
 -> End of Development (Old): 01 January 2010, 23:31 (GMT-3)<br>
+-> Original author link: https://github.com/dimmyi
 <br>
 -> Start of Continuation: 24 February 2024, 11:15 (GMT-3) [BRAZIL]<br>
 <br>

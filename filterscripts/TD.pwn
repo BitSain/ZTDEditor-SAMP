@@ -35,7 +35,7 @@ Changelog (Old):
 */
 
 #include <a_samp>
-#include <dini>
+#include <Dini>
 
 // =============================================================================
 // Internal Declarations.
@@ -1266,8 +1266,8 @@ stock ShowTextDrawDialog(playerid, dialogid, aux=0, aux2=0){
 	        
 			new info[1024];
 			if(fexist("tdlist.lst")) {
-				if(aux != 2)	info = "Custom filename...";
-				else    		info = "<< Go back";
+				if(aux != 2) info = "Custom filename...";
+				else info = "<< Go back";
 		        new File:tdlist = fopen("tdlist.lst", io_read),
 					line[128];
                 while(fread(tdlist, line)) {
@@ -1439,14 +1439,14 @@ stock ShowTextDrawDialog(playerid, dialogid, aux=0, aux2=0){
 	        // aux is 0 for red, 1 for green, 2 for blue, and 3 for alpha.
 	        // aux2 is the type of error message. 0 for no error.
 	        new info[256];
-	        if(aux2 == 1) 		info = "ERROR: The number range has to be between 0 and 255.\n\n";
-	        else if(aux2 == 2) 	info = "ERROR: You have to write a number.\n\n";
+	        if(aux2 == 1) info = "ERROR: The number range has to be between 0 and 255.\n\n";
+	        else if(aux2 == 2) info = "ERROR: You have to write a number.\n\n";
 
 	        format(info, sizeof(info), "%sWrite the amount of ", info);
-	        if(aux == 0) 		format(info, sizeof(info), "%sRED", info);
-	        else if(aux == 1)   format(info, sizeof(info), "%sGREEN", info);
-	        else if(aux == 2)   format(info, sizeof(info), "%sBLUE", info);
-	        else if(aux == 3)   format(info, sizeof(info), "%sOPACITY", info);
+	        if(aux == 0) format(info, sizeof(info), "%sRED", info);
+	        else if(aux == 1) format(info, sizeof(info), "%sGREEN", info);
+	        else if(aux == 2) format(info, sizeof(info), "%sBLUE", info);
+	        else if(aux == 3) format(info, sizeof(info), "%sOPACITY", info);
          	format(info, sizeof(info), "%s you want.\n", info);
          	format(info, sizeof(info), "%sThe number has to be in a range between 0 and 255.", info);
 
@@ -1482,8 +1482,8 @@ stock ShowTextDrawDialog(playerid, dialogid, aux=0, aux2=0){
 	        if(aux2 == 1) info = "ERROR: You have to write a number.\n\n";
 
 	        format(info, sizeof(info), "%sWrite in numbers the new exact ", info);
-	        if(aux == 0) 		format(info, sizeof(info), "%sX", info);
-	        else if(aux == 1)   format(info, sizeof(info), "%sY", info);
+	        if(aux == 0) format(info, sizeof(info), "%sX", info);
+	        else if(aux == 1) format(info, sizeof(info), "%sY", info);
          	format(info, sizeof(info), "%s lenght of the font letters.\n", info);
 
         	pData[playerid][P_Aux] = aux; // To know if he's editing X or Y.
@@ -1494,7 +1494,7 @@ stock ShowTextDrawDialog(playerid, dialogid, aux=0, aux2=0){
 	    case 20: {
 	        new info[256];
 	        if(tData[pData[playerid][P_CurrentTextdraw]][T_Outline] == 1)	info = "Outline Off";
-	        else                                                            info = "Outline On";
+	        else info = "Outline On";
 	        format(info, sizeof(info), "%s\nShadow size\nOutline/Shadow color\nFinish outline edition...", info);
 	        ShowPlayerDialog(playerid, dialogid+1574, DIALOG_STYLE_LIST, CreateDialogTitle(playerid, "Textdraw's outline"), info, "Accept", "Go back");
 	        return true;
@@ -2238,11 +2238,10 @@ stock ExportProject(playerid, type) {
  	SendClientMessage(playerid, MSG_COLOR, "[TDE]: The project is now being exported, please wait...");
  	
  	new filename[135], tmpstring[1152];
- 	if(type == 0)		format(filename, sizeof(filename), "%s.txt", CurrentProject);
- 	else if(type == 7)	format(filename, sizeof(filename), "%s.txt", CurrentProject);
- 	else if(type == 8)	format(filename, sizeof(filename), "%s.txt", CurrentProject);
- 	else		  		format(filename, sizeof(filename), "%s.pwn", CurrentProject);
+ 	if(type == 0 || type == 7 || type == 8) format(filename, sizeof(filename), "%s.txt", CurrentProject);
+ 	else format(filename, sizeof(filename), "%s.pwn", CurrentProject);
  	new File:File = fopen(filename, io_write);
+ 	
 	switch(type){
 		case 0: {// Classic export
 	        fwrite(File, "// TextDraw developed using Zamaroht's Textdraw Editor 1.0\r\n\r\n");
@@ -3272,15 +3271,15 @@ stock DeleteLineFromFile(const file[], line) {
  *  Idea: Y_Less, Bugfixing (when length=1) by DracoBlue
  *  @param   string
  */
-stock StripNewLine(const str[]) {
-	new string[1024]; format(string, sizeof(string), str);
+stock StripNewLine(string[]) {
 	new len = strlen(string);
-	if(string[0]==0) return ;
+	if(string[0]==0) return false;
 	if((string[len - 1] == '\n') || (string[len - 1] == '\r')) {
 		string[len - 1] = 0;
-		if(string[0]==0) return ;
+		if(string[0]==0) return false;
 		if((string[len - 2] == '\n') || (string[len - 2] == '\r')) string[len - 2] = 0;
 	}
+	return true;
 }
 
 /** BY DRACOBLUE
@@ -3365,6 +3364,7 @@ stock IsPlayerMinID(playerid) {
 	}
 	return true;
 }
+
 // ================================================================================================================================
 // ----------------------------------------------------- END OF AUXULIAR FUNCTIONS ------------------------------------------------
 // ================================================================================================================================

@@ -16,9 +16,10 @@
 
 	Disclaimer
 	You do not need to include me in your credits if you used this filterscript to create your textdraws.
-	You hold all rights over the exported files and filterscripts created by this filterscript.
-	You can redistribute the main filterscript as you wish, but ALWAYS keep the name of the author, the continuator, and a link back to the 
-	original post attached to the means of distribution. Even if you create a modification based on this filterscript, the same terms apply.
+    You hold all rights over the exported files and filterscripts created by this filterscript.
+    You can redistribute the main filterscript as you wish, but ALWAYS keep the name of the author, the continuator, 
+    and a link back to the original post https://portalsamp.com/showthread.php?tid=4754) attached to the means of distribution.
+    Even if you create a modification based on this filterscript, the same terms apply.
 
 	=================================================================
 */

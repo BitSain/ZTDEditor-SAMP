@@ -61,7 +61,9 @@ Remember, to be able to use your creations, you must select the Export option fr
 ## Credits
 - 'Zamaroht' Nicolás Laurito (Author and Creator of version v1.0.0)
 - BitSain (Repository creator and project continuer from v1.0.0)
-- Y_Less (YSI includes package)
+- Y_Less (YSI includes & sscanf2)
+- JaTochNietDan (filemanager plugin)
+- oscar-broman (strlib)
 - Dini and dutils functions were used by DracoBlue.
 
 ## Disclaimer

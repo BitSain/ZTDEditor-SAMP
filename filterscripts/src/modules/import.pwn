@@ -1,54 +1,9 @@
-/** BY BITSAIN
- *  -> TextDraw Convert
- *  100% for Textdraw is Converted
-*   THIS FILE IS FINALIZED. THERE MAY BE BUGS, ERRORS OR OTHER LIKE.
+/*
+	 	BY BITSAIN
+ 	*  -> TextDraw Convert
+ 	*  100% for Textdraw is Converted
+	*	THIS FILE IS FINALIZED. THERE MAY BE BUGS, ERRORS OR OTHER LIKE.
  */
-
-stock CreateTD(playerid, Float:x, Float:y, const text[], mode = 0) {
-	for(new i = 0; i < MAX_TEXTDRAWS; i++){
-		if(!tData[i][T_Created]) {
-			ClearTextdraw(i);
-			CreateDefaultTextdraw(i);
-            pData[playerid][P_CurrentTextdraw] = i;
-			tData[i][T_X] = x; tData[i][T_Y] = y;
-			tData[i][T_Mode] = mode;
-			format(tData[i][T_Text], 1536, "%s", text);
-			UpdateTextdraw(i);
-            break;
-        }
-    }
-    return true;
-}
-
-stock Convert_UpdateTextDraws(){
-	for(new i; i < MAX_TEXTDRAWS; i++)
-		if(tData[i][T_Created]) UpdateTextdraw(i);
-	return true;
-}
-
-stock Convert_SaveAll(){
-	for(new tdid = 0; tdid < MAX_TEXTDRAWS; tdid++){
-		if(!tData[tdid][T_Created]) continue;
-
-	 	SaveTDData(tdid, "T_Text");
-		SaveTDData(tdid, "T_Alignment");
-		SaveTDData(tdid, "T_Color");
-		SaveTDData(tdid, "T_Font");
-		SaveTDData(tdid, "T_X"); 
-		SaveTDData(tdid, "T_Y");
-		SaveTDData(tdid, "T_XSize"); 
-		SaveTDData(tdid, "T_YSize");
-		SaveTDData(tdid, "T_TextSizeX"); 
-		SaveTDData(tdid, "T_TextSizeY");
-		SaveTDData(tdid, "T_UseBox");
-		SaveTDData(tdid, "T_BoxColor");
-		SaveTDData(tdid, "T_Shadow");
-		SaveTDData(tdid, "T_Outline");
-		SaveTDData(tdid, "T_BackColor");
-		SaveTDData(tdid, "T_Proportional");
-		SaveTDData(tdid, "T_Selectable");
-	}
-}
 
 stock ImportTextDraws(playerid){
 	new dir:dHandle = dir_open("./scriptfiles/"IMPORT_DIRECTORY);
@@ -82,7 +37,11 @@ stock ImportTextDraws(playerid){
 				format(tempmap, 64, IMPORT_DIRECTORY2, stext);
 
 				new File:f;
-				new tdid, icount;
+				const tdid = 0, 
+					icount = 0,
+					gcount = 0, 
+					pcount = 0;
+
 				f = fopen(tempmap, io_read);
 				if(!f){
 					SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: Error opening file for reading");
@@ -104,6 +63,8 @@ stock ImportTextDraws(playerid){
 			            if(icount == 0) CreateTD(playerid, x, y, buffer);
 			            else if(icount > 0) tdid++, CreateTD(playerid, x, y, buffer);
 			            icount++;
+
+			            gcount++;
 			        }
 
 			        if((pos = strfind(buffer, "CreatePlayerTextDraw", true)) != -1) {
@@ -117,6 +78,8 @@ stock ImportTextDraws(playerid){
 			            if(icount == 0) CreateTD(playerid, x, y, buffer, 1);
 			            else if(icount > 0) tdid++, CreateTD(playerid, x, y, buffer, 1);
 			            icount++;
+
+			            pcount++;
 			        }
 
 			        if(TDType == 1) { // Global
@@ -431,14 +394,63 @@ stock ImportTextDraws(playerid){
 				format(buffer, sizeof(buffer), "[ZTDE]: %d TextDraws were imported.", icount);
 				SendClientMessage(playerid, MSG_COLOR, buffer);
 
+				format(buffer, sizeof(buffer), "[ZTDE]: %d Global TextDraws | %d Player TextDraws", gcount, pcount);
+				SendClientMessage(playerid, MSG_COLOR, buffer);
+
 				// Were done importing
 				fclose(f);
             }
 		}
-        Dialog_ShowCallback(playerid, using inline Select, DIALOG_STYLE_LIST, "ZTDEditor -> Import TextDraws", line, "Select", "Cancel");
+        Dialog_ShowCallback(playerid, using inline Select, DIALOG_STYLE_LIST, "[ZTDEditor] Import TextDraws", line, "Select", "Cancel");
 	}
 	else {
 		SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: There are no Textdraws to be imported.");
 	}
 	return true;
+}
+
+stock CreateTD(playerid, Float:x, Float:y, const text[], mode = 0) {
+	for(new i = 0; i < MAX_TEXTDRAWS; i++){
+		if(!tData[i][T_Created]) {
+			ClearTextdraw(i);
+			CreateDefaultTextdraw(i);
+            pData[playerid][P_CurrentTextdraw] = i;
+			tData[i][T_X] = x; tData[i][T_Y] = y;
+			tData[i][T_Mode] = mode;
+			format(tData[i][T_Text], 1536, "%s", text);
+			UpdateTextdraw(i);
+            break;
+        }
+    }
+    return true;
+}
+
+stock Convert_UpdateTextDraws(){
+	for(new i; i < MAX_TEXTDRAWS; i++)
+		if(tData[i][T_Created]) UpdateTextdraw(i);
+	return true;
+}
+
+stock Convert_SaveAll(){
+	for(new tdid = 0; tdid < MAX_TEXTDRAWS; tdid++){
+		if(!tData[tdid][T_Created]) continue;
+
+	 	SaveTDData(tdid, "T_Text");
+		SaveTDData(tdid, "T_Alignment");
+		SaveTDData(tdid, "T_Color");
+		SaveTDData(tdid, "T_Font");
+		SaveTDData(tdid, "T_X"); 
+		SaveTDData(tdid, "T_Y");
+		SaveTDData(tdid, "T_XSize"); 
+		SaveTDData(tdid, "T_YSize");
+		SaveTDData(tdid, "T_TextSizeX"); 
+		SaveTDData(tdid, "T_TextSizeY");
+		SaveTDData(tdid, "T_UseBox");
+		SaveTDData(tdid, "T_BoxColor");
+		SaveTDData(tdid, "T_Shadow");
+		SaveTDData(tdid, "T_Outline");
+		SaveTDData(tdid, "T_BackColor");
+		SaveTDData(tdid, "T_Proportional");
+		SaveTDData(tdid, "T_Selectable");
+	}
 }

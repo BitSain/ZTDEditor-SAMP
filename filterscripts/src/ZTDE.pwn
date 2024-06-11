@@ -56,7 +56,7 @@
 #define MSG_COLOR           		0xFAF0CEFF	 	 // Color to be shown in the messages.
 #define PREVIEW_CHARS       	35					 // Amount of characters that show on the textdraw's preview.
 
-#define PROJECT_DIRECTORY "ztdeditor/Projects/%s.tde"
+#define PROJECT_DIRECTORY "ztdeditor/Projects/%s"
 #define EXPORT_DIRECTORY "ztdeditor/ExportProjects/%s"
 #define IMPORT_DIRECTORY "ztdeditor/ImportTextDraws/"
 #define IMPORT_DIRECTORY2 IMPORT_DIRECTORY"%s"
@@ -262,7 +262,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                         ShowTextDrawDialog(playerid, 1, 2); // Already exists.
                     } else {
                         CreateNewProject(filename);
-                        strmid(CurrentProject, filename, 0, strlen(filename) - 4, 128);
+                        format(CurrentProject, sizeof(CurrentProject), filename);
                         
                         new tmpstr[128];
                         format(tmpstr, sizeof(tmpstr), "[ZTDE]: You are now working on the '%s' project.", filename);
@@ -1532,8 +1532,8 @@ stock LoadProject(playerid, const filename[]) {
                 UpdateTextdraw(i);
             }
         }
-        strmid(CurrentProject, filename, 0, strlen(filename) - 4, 128);
-        printf("[DEBUG ZTDE]: Current Project: %s.tde", CurrentProject);
+        strmid(CurrentProject, filename, 0, strlen(filename), 128);
+        printf("[DEBUG ZTDE]: Current Project: %s", CurrentProject);
         ShowTextDrawDialog(playerid, 4);
         return true;
     }
@@ -2290,11 +2290,12 @@ stock ExportProject(playerid, type) {
  	*/
  	SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: The project is now being exported, please wait...");
  	
- 	new filename[256], tmpstring[1350];
- 	if(type == 0 || type == 7 || type == 8) format(filename, sizeof(filename), EXPORT_DIRECTORY".txt", CurrentProject);
- 	else format(filename, sizeof(filename), EXPORT_DIRECTORY".pwn", CurrentProject);
- 	new File:File = fopen(filename, io_write);
- 	
+ 	new filedirectory[256 + 128], filename[128], tmpstring[1350];
+    strmid(filename, CurrentProject, 0, strlen(CurrentProject) - 4, sizeof(filename));
+ 	if(type == 0 || type == 7 || type == 8) format(filedirectory, sizeof(filedirectory), EXPORT_DIRECTORY".txt", filename);
+ 	else format(filedirectory, sizeof(filedirectory), EXPORT_DIRECTORY".pwn", filename);
+
+ 	new File:File = fopen(filedirectory, io_write);
  	if(!File) {
         SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: Failed to open the file for exporting.");
         return false;
@@ -2302,7 +2303,7 @@ stock ExportProject(playerid, type) {
     
     // Debugging output to trace the export process
     new pname[MAX_PLAYER_NAME]; GetPlayerName(playerid, pname, sizeof(pname));
-    printf("[DEBUG ZTDE]: %s(%d) | Exporting project: %s.tde, type: %d", pname, playerid, CurrentProject, type);
+    printf("[DEBUG ZTDE]: %s(%d) | Exporting project: %s, type: %d", pname, playerid, CurrentProject, type);
 
 	switch(type){
 		case 0: { // Classic export
@@ -2361,7 +2362,7 @@ stock ExportProject(playerid, type) {
 	        fwrite(File, "// You can now use TextDrawShowForPlayer(-ForAll), TextDrawHideForPlayer(-ForAll) and\r\n");
 	        fwrite(File, "// TextDrawDestroy functions to show, hide, and destroy the textdraw.");
 
-			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.txt in scriptfiles directory.", CurrentProject);
+			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.txt in scriptfiles directory.", filename);
 	        SendClientMessage(playerid, MSG_COLOR, tmpstring);
 	    }
 
@@ -2470,7 +2471,7 @@ stock ExportProject(playerid, type) {
 			fwrite(File, "	return 1;\r\n");
 			fwrite(File, "}\r\n");
 			
-			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.pwn in scriptfiles directory as a filterscript.", CurrentProject);
+			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.pwn in scriptfiles directory as a filterscript.", filename);
 	        SendClientMessage(playerid, MSG_COLOR, tmpstring);
 	    }
 	    
@@ -2577,7 +2578,7 @@ stock ExportProject(playerid, type) {
 			fwrite(File, "	return 1;\r\n");
 			fwrite(File, "}\r\n\r\n");
 			
-			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.pwn in scriptfiles directory as a filterscript.", CurrentProject);
+			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.pwn in scriptfiles directory as a filterscript.", filename);
 	        SendClientMessage(playerid, MSG_COLOR, tmpstring);
 	    }
 	    
@@ -2686,7 +2687,7 @@ stock ExportProject(playerid, type) {
 			fwrite(File, "	return 1;\r\n");
 			fwrite(File, "}\r\n");
 			
-			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.pwn in scriptfiles directory as a filterscript.", CurrentProject);
+			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.pwn in scriptfiles directory as a filterscript.", filename);
 	        SendClientMessage(playerid, MSG_COLOR, tmpstring);
 	    }
 	    
@@ -2830,7 +2831,7 @@ stock ExportProject(playerid, type) {
 				fwrite(File, "}\r\n");
 			}
 			
-			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.pwn in scriptfiles directory as a filterscript.", CurrentProject);
+			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.pwn in scriptfiles directory as a filterscript.", filename);
 	        SendClientMessage(playerid, MSG_COLOR, tmpstring);
 	    }
 	    
@@ -2943,7 +2944,7 @@ stock ExportProject(playerid, type) {
 			}
 	        fwrite(File, "}");
 	        
-	        format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.pwn in scriptfiles directory as a filterscript.", CurrentProject);
+	        format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.pwn in scriptfiles directory as a filterscript.", filename);
 	        SendClientMessage(playerid, MSG_COLOR, tmpstring);
 	    }
 	    
@@ -3051,7 +3052,7 @@ stock ExportProject(playerid, type) {
 			}
 			fwrite(File, "}");
 			
-		    format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.pwn in scriptfiles directory as a filterscript.", CurrentProject);
+		    format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.pwn in scriptfiles directory as a filterscript.", filename);
 	        SendClientMessage(playerid, MSG_COLOR, tmpstring);
 	    }
 
@@ -3112,7 +3113,7 @@ stock ExportProject(playerid, type) {
 	        fwrite(File, "// You can now use PlayerTextDrawShow, PlayerTextDrawHide and\r\n");
 	        fwrite(File, "// PlayerTextDrawDestroy functions to show, hide, and destroy the textdraw.");
 
-			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.txt in scriptfiles directory.", CurrentProject);
+			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.txt in scriptfiles directory.", filename);
 	        SendClientMessage(playerid, MSG_COLOR, tmpstring);
 	        SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: Fuction `PlayerTextDraw` add by adri1");
 	    }
@@ -3249,7 +3250,7 @@ stock ExportProject(playerid, type) {
 	        	fwrite(File, "// PlayerTextDrawDestroy functions to show, hide, and destroy the textdraw.");
 	        }
 
-			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.txt in scriptfiles directory.", CurrentProject);
+			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.txt in scriptfiles directory.", filename);
 	        SendClientMessage(playerid, MSG_COLOR, tmpstring);
 	    }
 	}

@@ -26,7 +26,6 @@
 // =============================================================================
 // 					->				INCLUDES
 // =============================================================================
-
 #include <a_samp>
 #include <sscanf2>
 #include <filemanager>
@@ -35,16 +34,21 @@
 
 #undef MAX_PLAYERS
 #define MAX_PLAYERS 10
+/*#define YSI_NO_CACHE_MESSAGE
+#define YSI_NO_OPTIMISATION_MESSAGE*/
+#define YSI_NO_VERSION_CHECK
 #define YSI_NO_HEAP_MALLOC
 
-#include <YSI_Data\y_foreach>
 #include <YSI_Coding\y_inline>
+#include <YSI_Data\y_foreach>
 #include <YSI_Visual\y_dialog>
 
 // =============================================================================
 // 					->				Internal Declarations
 // =============================================================================
 #define ZTDE_VERSION "v1.0.0"
+
+//#define ZTDE_DEBUG
 
 #define function%0(%1) forward%0(%1); public%0(%1)
 

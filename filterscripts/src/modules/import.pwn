@@ -37,10 +37,10 @@ stock ImportTextDraws(playerid){
 				format(tempmap, 64, IMPORT_DIRECTORY2, stext);
 
 				new File:f;
-				const tdid = 0, 
-					icount = 0,
-					gcount = 0, 
-					pcount = 0;
+				new tdid = 0, 
+						icount = 0,
+							gcount = 0, 
+								pcount = 0;
 
 				f = fopen(tempmap, io_read);
 				if(!f){

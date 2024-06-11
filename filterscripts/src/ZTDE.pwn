@@ -82,18 +82,16 @@ enum enum_tData{ // Textdraw data.
 	T_Text[1536], // The textdraw's string.
 	Float:T_X,
 	Float:T_Y,
+    Float:T_TextSize[2],
+    Float:T_Size[2],
 	T_Alignment,
 	T_BackColor,
 	T_BoxColor,
 	T_Color,
 	T_Font,
-	Float:T_XSize,
-	Float:T_YSize,
 	T_Outline,
 	T_Proportional,
 	T_Shadow,
-	Float:T_TextSizeX,
-	Float:T_TextSizeY,
 	T_UseBox,
 	T_Selectable,
 	T_PreviewModel,
@@ -892,12 +890,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                     ShowTextDrawDialog(playerid, 19, pData[playerid][P_Aux], 1);
                 } else {
                     if(pData[playerid][P_Aux] == 0) { // If he edited X 
-                        tData[pData[playerid][P_CurrentTextdraw]][T_XSize] = floatstr(inputtext);
+                        tData[pData[playerid][P_CurrentTextdraw]][T_Size][0] = floatstr(inputtext);
                         UpdateTextdraw(pData[playerid][P_CurrentTextdraw]);
                         SaveTDData(pData[playerid][P_CurrentTextdraw], "T_XSize");
                         ShowTextDrawDialog(playerid, 19, 1, 0);
                     } else if(pData[playerid][P_Aux] == 1) { // If he edited Y
-                        tData[pData[playerid][P_CurrentTextdraw]][T_YSize] = floatstr(inputtext);
+                        tData[pData[playerid][P_CurrentTextdraw]][T_Size][1] = floatstr(inputtext);
                         UpdateTextdraw(pData[playerid][P_CurrentTextdraw]);
                         SaveTDData(pData[playerid][P_CurrentTextdraw], "T_YSize");
                         ShowTextDrawDialog(playerid, 5);
@@ -1467,11 +1465,11 @@ stock LoadProject(playerid, const filename[]) {
 
                 format(string, sizeof(string), "%dT_TextSizeX", i);
                 if(dini_Isset(filedirectory, string))
-                    tData[i][T_TextSizeX] = dini_Float(filedirectory, string);
+                    tData[i][T_TextSize][0] = dini_Float(filedirectory, string);
 
                 format(string, sizeof(string), "%dT_TextSizeY", i);
                 if(dini_Isset(filedirectory, string))
-                    tData[i][T_TextSizeY] = dini_Float(filedirectory, string);
+                    tData[i][T_TextSize][1] = dini_Float(filedirectory, string);
 
                 format(string, sizeof(string), "%dT_Color", i);
                 if(dini_Isset(filedirectory, string))
@@ -1483,11 +1481,11 @@ stock LoadProject(playerid, const filename[]) {
 
                 format(string, sizeof(string), "%dT_XSize", i);
                 if(dini_Isset(filedirectory, string))
-                    tData[i][T_XSize] = dini_Float(filedirectory, string);
+                    tData[i][T_Size][0] = dini_Float(filedirectory, string);
 
                 format(string, sizeof(string), "%dT_YSize", i);
                 if(dini_Isset(filedirectory, string))
-                    tData[i][T_YSize] = dini_Float(filedirectory, string);
+                    tData[i][T_Size][1] = dini_Float(filedirectory, string);
 
                 format(string, sizeof(string), "%dT_Outline", i);
                 if(dini_Isset(filedirectory, string))
@@ -2017,29 +2015,10 @@ stock ClearTextdraw(tdid) {
 	    @tdid:          Textdraw ID
 	*/
 	TextDrawHideForAll(tData[tdid][T_Handler]);
-	tData[tdid][T_Created] = false;
-	strmid(tData[tdid][T_Text], "", 0, 1, 2);
-    tData[tdid][T_X] = 0.0;
-    tData[tdid][T_Y] = 0.0;
-    tData[tdid][T_Alignment] = 0;
-    tData[tdid][T_BackColor] = 0;
-    tData[tdid][T_UseBox] = 0;
-    tData[tdid][T_BoxColor] = 0;
-    tData[tdid][T_TextSizeX] = 0.0;
-    tData[tdid][T_TextSizeY] = 0.0;
-    tData[tdid][T_Color] = 0;
-    tData[tdid][T_Font] = 0;
-    tData[tdid][T_XSize] = 0.0;
-    tData[tdid][T_YSize] = 0.0;
-    tData[tdid][T_Outline] = 0;
-    tData[tdid][T_Proportional] = 0;
-    tData[tdid][T_Shadow] = 0;
-    tData[tdid][T_Selectable] = 0;
+	static const reset[enum_tData];
+    tData[tdid] = reset;
+
     tData[tdid][T_PreviewModel] = -1;
-	tData[tdid][PMZoom] = 0;
-	tData[tdid][PMRotX] = 0;
-	tData[tdid][PMRotY] = 0.0;
-	tData[tdid][PMRotZ] = 0;
 }
 
 stock CreateDefaultTextdraw(tdid, save = 1) {
@@ -2054,12 +2033,12 @@ stock CreateDefaultTextdraw(tdid, save = 1) {
     tData[tdid][T_BackColor] = RGB(0, 0, 0, 255);
     tData[tdid][T_UseBox] = 0;
     tData[tdid][T_BoxColor] = RGB(0, 0, 0, 255);
-    tData[tdid][T_TextSizeX] = 0.0;
-    tData[tdid][T_TextSizeY] = 0.0;
+    tData[tdid][T_TextSize][0] = 0.0;
+    tData[tdid][T_TextSize][1] = 0.0;
     tData[tdid][T_Color] = RGB(255, 255, 255, 255);
     tData[tdid][T_Font] = 1;
-    tData[tdid][T_XSize] = 0.5;
-    tData[tdid][T_YSize] = 1.0;
+    tData[tdid][T_Size][0] = 0.5;
+    tData[tdid][T_Size][1] = 1.0;
     tData[tdid][T_Outline] = 0;
     tData[tdid][T_Proportional] = 1;
     tData[tdid][T_Shadow] = 1;
@@ -2088,12 +2067,12 @@ stock DuplicateTextdraw(source, to) {
     tData[to][T_BackColor] = tData[source][T_BackColor];
     tData[to][T_UseBox] = tData[source][T_UseBox];
     tData[to][T_BoxColor] = tData[source][T_BoxColor];
-    tData[to][T_TextSizeX] = tData[source][T_TextSizeX];
-    tData[to][T_TextSizeY] = tData[source][T_TextSizeY];
+    tData[to][T_TextSize][0] = tData[source][T_TextSize][0];
+    tData[to][T_TextSize][1] = tData[source][T_TextSize][1];
     tData[to][T_Color] = tData[source][T_Color];
     tData[to][T_Font] = tData[source][T_Font];
-    tData[to][T_XSize] = tData[source][T_XSize];
-    tData[to][T_YSize] = tData[source][T_YSize];
+    tData[to][T_Size][0] = tData[source][T_Size][0];
+    tData[to][T_Size][1] = tData[source][T_Size][1];
     tData[to][T_Outline] = tData[source][T_Outline];
     tData[to][T_Proportional] = tData[source][T_Proportional];
     tData[to][T_Shadow] = tData[source][T_Shadow];
@@ -2143,8 +2122,13 @@ stock UpdateTextdraw(tdid) {
 	TextDrawBackgroundColor(tData[tdid][T_Handler], tData[tdid][T_BackColor]);
 	TextDrawColor(tData[tdid][T_Handler], tData[tdid][T_Color]);
 	TextDrawFont(tData[tdid][T_Handler], tData[tdid][T_Font]);
-	TextDrawLetterSize(tData[tdid][T_Handler], tData[tdid][T_XSize], tData[tdid][T_YSize]);
+    TextDrawTextSize(tData[tdid][T_Handler], tData[tdid][T_TextSize][0], tData[tdid][T_TextSize][1]);
+	TextDrawLetterSize(tData[tdid][T_Handler], tData[tdid][T_Size][0], tData[tdid][T_Size][1]);
 	TextDrawSetOutline(tData[tdid][T_Handler], tData[tdid][T_Outline]);
+    if(tData[tdid][T_UseBox]){
+        TextDrawUseBox(tData[tdid][T_Handler], tData[tdid][T_UseBox]);
+        TextDrawBoxColor(tData[tdid][T_Handler], tData[tdid][T_BoxColor]);
+    }
 	TextDrawSetProportional(tData[tdid][T_Handler], tData[tdid][T_Proportional]);
 	TextDrawSetShadow(tData[tdid][T_Handler], tData[tdid][T_Shadow]);
 	TextDrawSetSelectable(tData[tdid][T_Handler], tData[tdid][T_Selectable]);
@@ -2152,11 +2136,7 @@ stock UpdateTextdraw(tdid) {
 	    TextDrawSetPreviewModel(tData[tdid][T_Handler], tData[tdid][T_PreviewModel]);
 	    TextDrawSetPreviewRot(tData[tdid][T_Handler], tData[tdid][PMRotX], tData[tdid][PMRotY], tData[tdid][PMRotZ], tData[tdid][PMZoom]);
 	}
-	if(tData[tdid][T_UseBox]) {
-		TextDrawUseBox(tData[tdid][T_Handler], tData[tdid][T_UseBox]);
-		TextDrawBoxColor(tData[tdid][T_Handler], tData[tdid][T_BoxColor]);
-		TextDrawTextSize(tData[tdid][T_Handler], tData[tdid][T_TextSizeX], tData[tdid][T_TextSizeY]);
-	}
+	
 	TextDrawShowForAll(tData[tdid][T_Handler]);
 	return true;
 }
@@ -2244,17 +2224,17 @@ stock SaveTDData(tdid, const data[]) {
 	else if(!strcmp("T_BoxColor", data))
 		dini_IntSet(filename, string, tData[tdid][T_BoxColor]);
     else if(!strcmp("T_TextSizeX", data))
-		dini_FloatSet(filename, string, tData[tdid][T_TextSizeX]);
+		dini_FloatSet(filename, string, tData[tdid][T_TextSize][0]);
     else if(!strcmp("T_TextSizeY", data))
-		dini_FloatSet(filename, string, tData[tdid][T_TextSizeY]);
+		dini_FloatSet(filename, string, tData[tdid][T_TextSize][1]);
     else if(!strcmp("T_Color", data))
 		dini_IntSet(filename, string, tData[tdid][T_Color]);
     else if(!strcmp("T_Font", data))
 		dini_IntSet(filename, string, tData[tdid][T_Font]);
     else if(!strcmp("T_XSize", data))
-		dini_FloatSet(filename, string, tData[tdid][T_XSize]);
+		dini_FloatSet(filename, string, tData[tdid][T_Size][0]);
     else if(!strcmp("T_YSize", data))
-		dini_FloatSet(filename, string, tData[tdid][T_YSize]);
+		dini_FloatSet(filename, string, tData[tdid][T_Size][1]);
     else if(!strcmp("T_Outline", data))
 		dini_IntSet(filename, string, tData[tdid][T_Outline]);
     else if(!strcmp("T_Proportional", data))
@@ -2328,7 +2308,7 @@ stock ExportProject(playerid, type) {
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "TextDrawFont(Textdraw%d, %d);\r\n", i, tData[i][T_Font]);
 					fwrite(File, tmpstring);
-					format(tmpstring, sizeof(tmpstring), "TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_XSize], tData[i][T_YSize]);
+					format(tmpstring, sizeof(tmpstring), "TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_Size][0], tData[i][T_Size][1]);
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "TextDrawColor(Textdraw%d, %d);\r\n", i, tData[i][T_Color]);
 					fwrite(File, tmpstring);
@@ -2345,7 +2325,7 @@ stock ExportProject(playerid, type) {
 						fwrite(File, tmpstring);
 						format(tmpstring, sizeof(tmpstring), "TextDrawBoxColor(Textdraw%d, %d);\r\n", i, tData[i][T_BoxColor]);
 						fwrite(File, tmpstring);
-						format(tmpstring, sizeof(tmpstring), "TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSizeX], tData[i][T_TextSizeY]);
+						format(tmpstring, sizeof(tmpstring), "TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSize][0], tData[i][T_TextSize][1]);
 						fwrite(File, tmpstring);
 					}
 					if(tData[i][T_PreviewModel] > -1) {
@@ -2409,7 +2389,7 @@ stock ExportProject(playerid, type) {
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "	TextDrawFont(Textdraw%d, %d);\r\n", i, tData[i][T_Font]);
 					fwrite(File, tmpstring);
-					format(tmpstring, sizeof(tmpstring), "	TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_XSize], tData[i][T_YSize]);
+					format(tmpstring, sizeof(tmpstring), "	TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_Size][0], tData[i][T_Size][1]);
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "	TextDrawColor(Textdraw%d, %d);\r\n", i, tData[i][T_Color]);
 					fwrite(File, tmpstring);
@@ -2426,7 +2406,7 @@ stock ExportProject(playerid, type) {
 						fwrite(File, tmpstring);
 						format(tmpstring, sizeof(tmpstring), "	TextDrawBoxColor(Textdraw%d, %d);\r\n", i, tData[i][T_BoxColor]);
 						fwrite(File, tmpstring);
-						format(tmpstring, sizeof(tmpstring), "	TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSizeX], tData[i][T_TextSizeY]);
+						format(tmpstring, sizeof(tmpstring), "	TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSize][0], tData[i][T_TextSize][1]);
 						fwrite(File, tmpstring);
 					}
 					format(tmpstring, sizeof(tmpstring), "	TextDrawSetSelectable(Textdraw%d, %d);\r\n", i, tData[i][T_Selectable]);
@@ -2518,7 +2498,7 @@ stock ExportProject(playerid, type) {
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "	TextDrawFont(Textdraw%d, %d);\r\n", i, tData[i][T_Font]);
 					fwrite(File, tmpstring);
-					format(tmpstring, sizeof(tmpstring), "	TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_XSize], tData[i][T_YSize]);
+					format(tmpstring, sizeof(tmpstring), "	TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_Size][0], tData[i][T_Size][1]);
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "	TextDrawColor(Textdraw%d, %d);\r\n", i, tData[i][T_Color]);
 					fwrite(File, tmpstring);
@@ -2535,7 +2515,7 @@ stock ExportProject(playerid, type) {
 						fwrite(File, tmpstring);
 						format(tmpstring, sizeof(tmpstring), "	TextDrawBoxColor(Textdraw%d, %d);\r\n", i, tData[i][T_BoxColor]);
 						fwrite(File, tmpstring);
-						format(tmpstring, sizeof(tmpstring), "	TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSizeX], tData[i][T_TextSizeY]);
+						format(tmpstring, sizeof(tmpstring), "	TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSize][0], tData[i][T_TextSize][1]);
 						fwrite(File, tmpstring);
 					}
 					format(tmpstring, sizeof(tmpstring), "	TextDrawSetSelectable(Textdraw%d, %d);\r\n", i, tData[i][T_Selectable]);
@@ -2625,7 +2605,7 @@ stock ExportProject(playerid, type) {
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "	TextDrawFont(Textdraw%d, %d);\r\n", i, tData[i][T_Font]);
 					fwrite(File, tmpstring);
-					format(tmpstring, sizeof(tmpstring), "	TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_XSize], tData[i][T_YSize]);
+					format(tmpstring, sizeof(tmpstring), "	TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_Size][0], tData[i][T_Size][1]);
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "	TextDrawColor(Textdraw%d, %d);\r\n", i, tData[i][T_Color]);
 					fwrite(File, tmpstring);
@@ -2642,7 +2622,7 @@ stock ExportProject(playerid, type) {
 						fwrite(File, tmpstring);
 						format(tmpstring, sizeof(tmpstring), "	TextDrawBoxColor(Textdraw%d, %d);\r\n", i, tData[i][T_BoxColor]);
 						fwrite(File, tmpstring);
-						format(tmpstring, sizeof(tmpstring), "	TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSizeX], tData[i][T_TextSizeY]);
+						format(tmpstring, sizeof(tmpstring), "	TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSize][0], tData[i][T_TextSize][1]);
 						fwrite(File, tmpstring);
 					}
 					format(tmpstring, sizeof(tmpstring), "	TextDrawSetSelectable(Textdraw%d, %d);\r\n", i, tData[i][T_Selectable]);
@@ -2735,7 +2715,7 @@ stock ExportProject(playerid, type) {
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "	TextDrawFont(Textdraw%d, %d);\r\n", i, tData[i][T_Font]);
 					fwrite(File, tmpstring);
-					format(tmpstring, sizeof(tmpstring), "	TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_XSize], tData[i][T_YSize]);
+					format(tmpstring, sizeof(tmpstring), "	TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_Size][0], tData[i][T_Size][1]);
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "	TextDrawColor(Textdraw%d, %d);\r\n", i, tData[i][T_Color]);
 					fwrite(File, tmpstring);
@@ -2752,7 +2732,7 @@ stock ExportProject(playerid, type) {
 						fwrite(File, tmpstring);
 						format(tmpstring, sizeof(tmpstring), "	TextDrawBoxColor(Textdraw%d, %d);\r\n", i, tData[i][T_BoxColor]);
 						fwrite(File, tmpstring);
-						format(tmpstring, sizeof(tmpstring), "	TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSizeX], tData[i][T_TextSizeY]);
+						format(tmpstring, sizeof(tmpstring), "	TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSize][0], tData[i][T_TextSize][1]);
 						fwrite(File, tmpstring);
 					}
 					format(tmpstring, sizeof(tmpstring), "	TextDrawSetSelectable(Textdraw%d, %d);\r\n", i, tData[i][T_Selectable]);
@@ -2879,7 +2859,7 @@ stock ExportProject(playerid, type) {
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "	TextDrawFont(Textdraw%d, %d);\r\n", i, tData[i][T_Font]);
 					fwrite(File, tmpstring);
-					format(tmpstring, sizeof(tmpstring), "	TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_XSize], tData[i][T_YSize]);
+					format(tmpstring, sizeof(tmpstring), "	TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_Size][0], tData[i][T_Size][1]);
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "	TextDrawColor(Textdraw%d, %d);\r\n", i, tData[i][T_Color]);
 					fwrite(File, tmpstring);
@@ -2896,7 +2876,7 @@ stock ExportProject(playerid, type) {
 						fwrite(File, tmpstring);
 						format(tmpstring, sizeof(tmpstring), "	TextDrawBoxColor(Textdraw%d, %d);\r\n", i, tData[i][T_BoxColor]);
 						fwrite(File, tmpstring);
-						format(tmpstring, sizeof(tmpstring), "	TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSizeX], tData[i][T_TextSizeY]);
+						format(tmpstring, sizeof(tmpstring), "	TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSize][0], tData[i][T_TextSize][1]);
 						fwrite(File, tmpstring);
 					}
 					format(tmpstring, sizeof(tmpstring), "	TextDrawSetSelectable(Textdraw%d, %d);\r\n", i, tData[i][T_Selectable]);
@@ -2991,7 +2971,7 @@ stock ExportProject(playerid, type) {
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "	TextDrawFont(Textdraw%d, %d);\r\n", i, tData[i][T_Font]);
 					fwrite(File, tmpstring);
-					format(tmpstring, sizeof(tmpstring), "	TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_XSize], tData[i][T_YSize]);
+					format(tmpstring, sizeof(tmpstring), "	TextDrawLetterSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_Size][0], tData[i][T_Size][1]);
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "	TextDrawColor(Textdraw%d, %d);\r\n", i, tData[i][T_Color]);
 					fwrite(File, tmpstring);
@@ -3008,7 +2988,7 @@ stock ExportProject(playerid, type) {
 						fwrite(File, tmpstring);
 						format(tmpstring, sizeof(tmpstring), "	TextDrawBoxColor(Textdraw%d, %d);\r\n", i, tData[i][T_BoxColor]);
 						fwrite(File, tmpstring);
-						format(tmpstring, sizeof(tmpstring), "	TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSizeX], tData[i][T_TextSizeY]);
+						format(tmpstring, sizeof(tmpstring), "	TextDrawTextSize(Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSize][0], tData[i][T_TextSize][1]);
 						fwrite(File, tmpstring);
 					}
 					format(tmpstring, sizeof(tmpstring), "	TextDrawSetSelectable(Textdraw%d, %d);\r\n", i, tData[i][T_Selectable]);
@@ -3079,7 +3059,7 @@ stock ExportProject(playerid, type) {
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "PlayerTextDrawFont(playerid,Textdraw%d, %d);\r\n", i, tData[i][T_Font]);
 					fwrite(File, tmpstring);
-					format(tmpstring, sizeof(tmpstring), "PlayerTextDrawLetterSize(playerid,Textdraw%d, %f, %f);\r\n", i, tData[i][T_XSize], tData[i][T_YSize]);
+					format(tmpstring, sizeof(tmpstring), "PlayerTextDrawLetterSize(playerid,Textdraw%d, %f, %f);\r\n", i, tData[i][T_Size][0], tData[i][T_Size][1]);
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "PlayerTextDrawColor(playerid,Textdraw%d, %d);\r\n", i, tData[i][T_Color]);
 					fwrite(File, tmpstring);
@@ -3096,7 +3076,7 @@ stock ExportProject(playerid, type) {
 						fwrite(File, tmpstring);
 						format(tmpstring, sizeof(tmpstring), "PlayerTextDrawBoxColor(playerid,Textdraw%d, %d);\r\n", i, tData[i][T_BoxColor]);
 						fwrite(File, tmpstring);
-						format(tmpstring, sizeof(tmpstring), "PlayerTextDrawTextSize(playerid,Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSizeX], tData[i][T_TextSizeY]);
+						format(tmpstring, sizeof(tmpstring), "PlayerTextDrawTextSize(playerid,Textdraw%d, %f, %f);\r\n", i, tData[i][T_TextSize][0], tData[i][T_TextSize][1]);
 						fwrite(File, tmpstring);
 					}
 					if(tData[i][T_PreviewModel] > -1) {
@@ -3160,7 +3140,7 @@ stock ExportProject(playerid, type) {
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "TextDrawFont(Textdraw[%d], %d);\r\n", count_textdraws, tData[i][T_Font]);
 					fwrite(File, tmpstring);
-					format(tmpstring, sizeof(tmpstring), "TextDrawLetterSize(Textdraw[%d], %f, %f);\r\n", count_textdraws, tData[i][T_XSize], tData[i][T_YSize]);
+					format(tmpstring, sizeof(tmpstring), "TextDrawLetterSize(Textdraw[%d], %f, %f);\r\n", count_textdraws, tData[i][T_Size][0], tData[i][T_Size][1]);
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "TextDrawColor(Textdraw[%d], %d);\r\n", count_textdraws, tData[i][T_Color]);
 					fwrite(File, tmpstring);
@@ -3177,7 +3157,7 @@ stock ExportProject(playerid, type) {
 						fwrite(File, tmpstring);
 						format(tmpstring, sizeof(tmpstring), "TextDrawBoxColor(Textdraw[%d], %d);\r\n", count_textdraws, tData[i][T_BoxColor]);
 						fwrite(File, tmpstring);
-						format(tmpstring, sizeof(tmpstring), "TextDrawTextSize(Textdraw[%d], %f, %f);\r\n", count_textdraws, tData[i][T_TextSizeX], tData[i][T_TextSizeY]);
+						format(tmpstring, sizeof(tmpstring), "TextDrawTextSize(Textdraw[%d], %f, %f);\r\n", count_textdraws, tData[i][T_TextSize][0], tData[i][T_TextSize][1]);
 						fwrite(File, tmpstring);
 					}
 					if(tData[i][T_PreviewModel] > -1) {
@@ -3214,7 +3194,7 @@ stock ExportProject(playerid, type) {
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "PlayerTextDrawFont(playerid, PlayerTextdraw[%d], %d);\r\n", count_textdraws, tData[i][T_Font]);
 					fwrite(File, tmpstring);
-					format(tmpstring, sizeof(tmpstring), "PlayerTextDrawLetterSize(playerid, PlayerTextdraw[%d], %f, %f);\r\n", count_textdraws, tData[i][T_XSize], tData[i][T_YSize]);
+					format(tmpstring, sizeof(tmpstring), "PlayerTextDrawLetterSize(playerid, PlayerTextdraw[%d], %f, %f);\r\n", count_textdraws, tData[i][T_Size][0], tData[i][T_Size][1]);
 					fwrite(File, tmpstring);
 					format(tmpstring, sizeof(tmpstring), "PlayerTextDrawColor(playerid, PlayerTextdraw[%d], %d);\r\n", count_textdraws, tData[i][T_Color]);
 					fwrite(File, tmpstring);
@@ -3231,7 +3211,7 @@ stock ExportProject(playerid, type) {
 						fwrite(File, tmpstring);
 						format(tmpstring, sizeof(tmpstring), "PlayerTextDrawBoxColor(playerid, PlayerTextdraw[%d], %d);\r\n", count_textdraws, tData[i][T_BoxColor]);
 						fwrite(File, tmpstring);
-						format(tmpstring, sizeof(tmpstring), "PlayerTextDrawTextSize(playerid, PlayerTextdraw[%d], %f, %f);\r\n", count_textdraws, tData[i][T_TextSizeX], tData[i][T_TextSizeY]);
+						format(tmpstring, sizeof(tmpstring), "PlayerTextDrawTextSize(playerid, PlayerTextdraw[%d], %f, %f);\r\n", count_textdraws, tData[i][T_TextSize][0], tData[i][T_TextSize][1]);
 						fwrite(File, tmpstring);
 					}
 					if(tData[i][T_PreviewModel] > -1) {
@@ -3289,21 +3269,21 @@ function KeyEdit(playerid) {
 	        }
 	        
 	        case EDIT_SIZE: {
-	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_YSize] -= 1.0;
-	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_YSize] -= 0.01;
-				else tData[pData[playerid][P_CurrentTextdraw]][T_YSize] -= 0.1;
+	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_Size][1] -= 1.0;
+	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_Size][1] -= 0.01;
+				else tData[pData[playerid][P_CurrentTextdraw]][T_Size][1] -= 0.1;
 
 				format(string, sizeof(string), "~n~~n~~n~~n~~n~~n~~n~~n~~n~~n~~y~~h~Size: ~b~X: ~w~%.4f ~r~- ~b~Y: ~w~%.4f", \
-			        tData[pData[playerid][P_CurrentTextdraw]][T_XSize], tData[pData[playerid][P_CurrentTextdraw]][T_YSize]);
+			        tData[pData[playerid][P_CurrentTextdraw]][T_Size][0], tData[pData[playerid][P_CurrentTextdraw]][T_Size][1]);
 	        }
 	        
 	        case EDIT_BOX: {
-	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeY] -= 10.0;
-	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeY] -= 0.1;
-				else tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeY] -= 1.0;
+	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][1] -= 10.0;
+	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][1] -= 0.1;
+				else tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][1] -= 1.0;
 
 				format(string, sizeof(string), "~n~~n~~n~~n~~n~~n~~n~~n~~n~~n~~y~~h~Size: ~b~X: ~w~%.4f ~r~- ~b~Y: ~w~%.4f", \
-			        tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeX], tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeY]);
+			        tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][0], tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][1]);
 	        }
 	    }
 	}
@@ -3319,21 +3299,21 @@ function KeyEdit(playerid) {
 	        }
 	        
 	        case EDIT_SIZE: {
-	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_YSize] += 1.0;
-	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_YSize] += 0.01;
-				else tData[pData[playerid][P_CurrentTextdraw]][T_YSize] += 0.1;
+	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_Size][1] += 1.0;
+	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_Size][1] += 0.01;
+				else tData[pData[playerid][P_CurrentTextdraw]][T_Size][1] += 0.1;
 
 				format(string, sizeof(string), "~n~~n~~n~~n~~n~~n~~n~~n~~n~~n~~y~~h~Size: ~b~X: ~w~%.4f ~r~- ~b~Y: ~w~%.4f", \
-			        tData[pData[playerid][P_CurrentTextdraw]][T_XSize], tData[pData[playerid][P_CurrentTextdraw]][T_YSize]);
+			        tData[pData[playerid][P_CurrentTextdraw]][T_Size][0], tData[pData[playerid][P_CurrentTextdraw]][T_Size][1]);
 	        }
 	        
 	        case EDIT_BOX: {
-	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeY] += 10.0;
-	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeY] += 0.1;
-				else tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeY] += 1.0;
+	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][1] += 10.0;
+	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][1] += 0.1;
+				else tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][1] += 1.0;
 
 				format(string, sizeof(string), "~n~~n~~n~~n~~n~~n~~n~~n~~n~~n~~y~~h~Size: ~b~X: ~w~%.4f ~r~- ~b~Y: ~w~%.4f", \
-			        tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeX], tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeY]);
+			        tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][0], tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][1]);
 	        }
 	    }
 	}
@@ -3350,21 +3330,21 @@ function KeyEdit(playerid) {
 	        }
 	        
 	        case EDIT_SIZE: {
-	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_XSize] -= 0.1;
-	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_XSize] -= 0.001;
-				else tData[pData[playerid][P_CurrentTextdraw]][T_XSize] -= 0.01;
+	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_Size][0] -= 0.1;
+	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_Size][0] -= 0.001;
+				else tData[pData[playerid][P_CurrentTextdraw]][T_Size][0] -= 0.01;
 
 				format(string, sizeof(string), "~n~~n~~n~~n~~n~~n~~n~~n~~n~~n~~y~~h~Size: ~b~X: ~w~%.4f ~r~- ~b~Y: ~w~%.4f", \
-			        tData[pData[playerid][P_CurrentTextdraw]][T_XSize], tData[pData[playerid][P_CurrentTextdraw]][T_YSize]);
+			        tData[pData[playerid][P_CurrentTextdraw]][T_Size][0], tData[pData[playerid][P_CurrentTextdraw]][T_Size][1]);
 	        }
 	        
 	        case EDIT_BOX: {
-	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeX] -= 10.0;
-	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeX] -= 0.1;
-				else tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeX] -= 1.0;
+	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][0] -= 10.0;
+	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][0] -= 0.1;
+				else tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][0] -= 1.0;
 
 				format(string, sizeof(string), "~n~~n~~n~~n~~n~~n~~n~~n~~n~~n~~y~~h~Size: ~b~X: ~w~%.4f ~r~- ~b~Y: ~w~%.4f", \
-			        tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeX], tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeY]);
+			        tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][0], tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][1]);
 	        }
 	    }
 	}
@@ -3380,21 +3360,21 @@ function KeyEdit(playerid) {
 	        }
 	        
 	        case EDIT_SIZE: {
-	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_XSize] += 0.1;
-	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_XSize] += 0.001;
-				else tData[pData[playerid][P_CurrentTextdraw]][T_XSize] += 0.01;
+	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_Size][0] += 0.1;
+	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_Size][0] += 0.001;
+				else tData[pData[playerid][P_CurrentTextdraw]][T_Size][0] += 0.01;
 
 				format(string, sizeof(string), "~n~~n~~n~~n~~n~~n~~n~~n~~n~~n~~y~~h~Size: ~b~X: ~w~%.4f ~r~- ~b~Y: ~w~%.4f", \
-			        tData[pData[playerid][P_CurrentTextdraw]][T_XSize], tData[pData[playerid][P_CurrentTextdraw]][T_YSize]);
+			        tData[pData[playerid][P_CurrentTextdraw]][T_Size][0], tData[pData[playerid][P_CurrentTextdraw]][T_Size][1]);
 	        }
 	        
 	        case EDIT_BOX: {
-	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeX] += 10.0;
-	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeX] += 0.1;
-				else tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeX] += 1.0;
+	            if(keys == KEY_SPRINT) tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][0] += 10.0;
+	            else if(keys == KEY_WALK) tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][0] += 0.1;
+				else tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][0] += 1.0;
 
 				format(string, sizeof(string), "~n~~n~~n~~n~~n~~n~~n~~n~~n~~n~~y~~h~Size: ~b~X: ~w~%.4f ~r~- ~b~Y: ~w~%.4f", \
-			        tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeX], tData[pData[playerid][P_CurrentTextdraw]][T_TextSizeY]);
+			        tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][0], tData[pData[playerid][P_CurrentTextdraw]][T_TextSize][1]);
 	        }
 	    }
 	}

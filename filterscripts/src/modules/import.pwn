@@ -11,11 +11,13 @@ stock ImportTextDraws(playerid){
 		SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: Error opening directory to list files");
 		return false;
 	}
-	new item[40], itype;
-	new tempmap[64];
-	new line[1024];
-	new fcount;
-	new buffer[750], pos = -1, TDType = -1;
+	new item[64], itype,
+		tempmap[64],
+		line[1024],
+		fcount,
+		buffer[750], 
+		pos = -1, 
+		TDType = -1;
 
 	// Create a load list.
 	while(dir_list(dHandle, item, itype)) {
@@ -60,11 +62,17 @@ stock ImportTextDraws(playerid){
 			            TDType = 1;
 			            if(isnull(buffer)) buffer[0] = '_', pos = strfind(buffer, ");", false), strdel(buffer, pos, strlen(buffer));
 
-			            if(icount == 0) CreateTD(playerid, x, y, buffer);
-			            else if(icount > 0) tdid++, CreateTD(playerid, x, y, buffer);
-			            icount++;
+			            if(icount > 0) { tdid++; }
 
-			            gcount++;
+ 						static const reset[enum_tData];
+ 						tData[tdid] = reset;
+			            tData[tdid][T_Created] = true;
+			            tData[tdid][T_Handler] = Text:-1;
+						tData[tdid][T_X] = x, tData[tdid][T_Y] = y;
+						format(tData[tdid][T_Text], 1536, buffer);
+						tData[tdid][T_Mode] = 0;
+
+			            icount++, gcount++;
 			        }
 
 			        if((pos = strfind(buffer, "CreatePlayerTextDraw", true)) != -1) {
@@ -74,33 +82,39 @@ stock ImportTextDraws(playerid){
 			            pos = strfind(buffer, "\");", false), strdel(buffer, pos, strlen(buffer));
 			            TDType = 2;
 			            if(isnull(buffer)) buffer[0] = '_', pos = strfind(buffer, ");", false), strdel(buffer, pos, strlen(buffer));
+			            
+			            if(icount > 0) { tdid++; }
 
-			            if(icount == 0) CreateTD(playerid, x, y, buffer, 1);
-			            else if(icount > 0) tdid++, CreateTD(playerid, x, y, buffer, 1);
-			            icount++;
+ 						static const reset[enum_tData];
+ 						tData[tdid] = reset;
+			            tData[tdid][T_Created] = true;
+			            tData[tdid][T_Handler] = Text:-1;
+						tData[tdid][T_X] = x, tData[tdid][T_Y] = y;
+						format(tData[tdid][T_Text], 1536, buffer);
+						tData[tdid][T_Mode] = 1;
 
-			            pcount++;
+			            icount++, gcount++;
 			        }
 
 			        if(TDType == 1) { // Global
-			            if((pos = strfind(buffer, "TextDrawLetterSize", true)) != -1) {
-			                new Float: x, Float: y;
-			                pos = strfind(buffer, ",", false),  strdel(buffer, 0, pos + ((buffer[pos + 1] == ' ') ? (2) : (1)));
-			                pos = strfind(buffer, ");", false), strdel(buffer, pos, strlen(buffer));
-			                sscanf(buffer, "p<,>ff", x, y);
-
-			                tData[tdid][T_XSize] = x;
-			                tData[tdid][T_YSize] = y;
-			            }
-
 			            if((pos = strfind(buffer, "TextDrawTextSize", true)) != -1) {
 			                new Float: x, Float: y;
 			                pos = strfind(buffer, ",", false),  strdel(buffer, 0, pos + ((buffer[pos + 1] == ' ') ? (2) : (1)));
 			                pos = strfind(buffer, ");", false), strdel(buffer, pos, strlen(buffer));
 			                sscanf(buffer, "p<,>ff", x, y);
 
-			                tData[tdid][T_TextSizeX] = x;
-			                tData[tdid][T_TextSizeY] = y;
+							tData[tdid][T_TextSize][0] = x;
+							tData[tdid][T_TextSize][1] = y;
+			            }
+
+			            if((pos = strfind(buffer, "TextDrawLetterSize", true)) != -1) {
+			                new Float: x, Float: y;
+			                pos = strfind(buffer, ",", false),  strdel(buffer, 0, pos + ((buffer[pos + 1] == ' ') ? (2) : (1)));
+			                pos = strfind(buffer, ");", false), strdel(buffer, pos, strlen(buffer));
+			                sscanf(buffer, "p<,>ff", x, y);
+
+			                tData[tdid][T_Size][0] = x;
+			                tData[tdid][T_Size][1] = y;
 			            }
 
 			            if((pos = strfind(buffer, "TextDrawAlignment", true)) != -1) {
@@ -236,24 +250,24 @@ stock ImportTextDraws(playerid){
 			            }*/
 			        }
 			        else if(TDType == 2) { // Player
-			            if((pos = strfind(buffer, "PlayerTextDrawLetterSize", true)) != -1) {
-			                new Float: x, Float: y;
-			                pos = strfind(buffer, ",", false),  strdel(buffer, 0, pos + ((buffer[pos + 1] == ' ') ? (2) : (1)));
-			                pos = strfind(buffer, ");", false), strdel(buffer, pos, strlen(buffer));
-			                sscanf(buffer, "p<,>ff", x, y);
-
-							tData[tdid][T_XSize] = x;
-							tData[tdid][T_YSize] = y;
-			            }
-
 			            if((pos = strfind(buffer, "PlayerTextDrawTextSize", true)) != -1) {
 			                new Float: x, Float: y;
 			                pos = strfind(buffer, ",", false),  strdel(buffer, 0, pos + ((buffer[pos + 1] == ' ') ? (2) : (1)));
 			                pos = strfind(buffer, ");", false), strdel(buffer, pos, strlen(buffer));
 			                sscanf(buffer, "p<,>ff", x, y);
 
-							tData[tdid][T_TextSizeX] = x;
-							tData[tdid][T_TextSizeY] = y;
+							tData[tdid][T_TextSize][0] = x;
+							tData[tdid][T_TextSize][1] = y;
+			            }
+
+			            if((pos = strfind(buffer, "PlayerTextDrawLetterSize", true)) != -1) {
+			                new Float: x, Float: y;
+			                pos = strfind(buffer, ",", false),  strdel(buffer, 0, pos + ((buffer[pos + 1] == ' ') ? (2) : (1)));
+			                pos = strfind(buffer, ");", false), strdel(buffer, pos, strlen(buffer));
+			                sscanf(buffer, "p<,>ff", x, y);
+
+							tData[tdid][T_Size][0] = x;
+							tData[tdid][T_Size][1] = y;
 			            }
 
 			            if((pos = strfind(buffer, "PlayerTextDrawAlignment", true)) != -1) {
@@ -391,10 +405,10 @@ stock ImportTextDraws(playerid){
 				Convert_UpdateTextDraws();
 				Convert_SaveAll();
 
-				format(buffer, sizeof(buffer), "[ZTDE]: %d TextDraws were imported.", icount);
+				format(buffer, sizeof(buffer), "[ZTDE]: %i TextDraws were imported.", icount);
 				SendClientMessage(playerid, MSG_COLOR, buffer);
 
-				format(buffer, sizeof(buffer), "[ZTDE]: %d Global TextDraws | %d Player TextDraws", gcount, pcount);
+				format(buffer, sizeof(buffer), "[ZTDE]: %i Global TextDraws | %i Player TextDraws", gcount, pcount);
 				SendClientMessage(playerid, MSG_COLOR, buffer);
 
 				// Were done importing
@@ -407,22 +421,6 @@ stock ImportTextDraws(playerid){
 		SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: There are no Textdraws to be imported.");
 	}
 	return true;
-}
-
-stock CreateTD(playerid, Float:x, Float:y, const text[], mode = 0) {
-	for(new i = 0; i < MAX_TEXTDRAWS; i++){
-		if(!tData[i][T_Created]) {
-			ClearTextdraw(i);
-			CreateDefaultTextdraw(i);
-            pData[playerid][P_CurrentTextdraw] = i;
-			tData[i][T_X] = x; tData[i][T_Y] = y;
-			tData[i][T_Mode] = mode;
-			format(tData[i][T_Text], 1536, "%s", text);
-			UpdateTextdraw(i);
-            break;
-        }
-    }
-    return true;
 }
 
 stock Convert_UpdateTextDraws(){
@@ -441,10 +439,10 @@ stock Convert_SaveAll(){
 		SaveTDData(tdid, "T_Font");
 		SaveTDData(tdid, "T_X"); 
 		SaveTDData(tdid, "T_Y");
-		SaveTDData(tdid, "T_XSize"); 
-		SaveTDData(tdid, "T_YSize");
 		SaveTDData(tdid, "T_TextSizeX"); 
 		SaveTDData(tdid, "T_TextSizeY");
+		SaveTDData(tdid, "T_XSize"); 
+		SaveTDData(tdid, "T_YSize");
 		SaveTDData(tdid, "T_UseBox");
 		SaveTDData(tdid, "T_BoxColor");
 		SaveTDData(tdid, "T_Shadow");

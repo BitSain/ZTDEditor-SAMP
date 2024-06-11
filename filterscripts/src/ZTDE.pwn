@@ -56,7 +56,7 @@
 #define MSG_COLOR           		0xFAF0CEFF	 	 // Color to be shown in the messages.
 #define PREVIEW_CHARS       	35					 // Amount of characters that show on the textdraw's preview.
 
-#define PROJECT_DIRECTORY "ztdeditor/Projects/%s"
+#define PROJECT_DIRECTORY "ztdeditor/Projects/%s.tde"
 #define EXPORT_DIRECTORY "ztdeditor/ExportProjects/%s"
 #define IMPORT_DIRECTORY "ztdeditor/ImportTextDraws/"
 #define IMPORT_DIRECTORY2 IMPORT_DIRECTORY"%s"
@@ -262,7 +262,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                         ShowTextDrawDialog(playerid, 1, 2); // Already exists.
                     } else {
                         CreateNewProject(filename);
-                        strmid(CurrentProject, filename, 0, strlen(filename), 128);
+                        strmid(CurrentProject, filename, 0, strlen(filename) - 4, 128);
                         
                         new tmpstr[128];
                         format(tmpstr, sizeof(tmpstr), "[ZTDE]: You are now working on the '%s' project.", filename);
@@ -1533,7 +1533,7 @@ stock LoadProject(playerid, const filename[]) {
             }
         }
         strmid(CurrentProject, filename, 0, strlen(filename) - 4, 128);
-        printf("[DEBUG ZTDE]: Current Project: %s", CurrentProject);
+        printf("[DEBUG ZTDE]: Current Project: %s.tde", CurrentProject);
         ShowTextDrawDialog(playerid, 4);
         return true;
     }
@@ -2302,7 +2302,7 @@ stock ExportProject(playerid, type) {
     
     // Debugging output to trace the export process
     new pname[MAX_PLAYER_NAME]; GetPlayerName(playerid, pname, sizeof(pname));
-    printf("[DEBUG ZTDE]: %s(%d) | Exporting project: %s, type: %d", pname, playerid, CurrentProject, type);
+    printf("[DEBUG ZTDE]: %s(%d) | Exporting project: %s.tde, type: %d", pname, playerid, CurrentProject, type);
 
 	switch(type){
 		case 0: { // Classic export
@@ -3114,7 +3114,7 @@ stock ExportProject(playerid, type) {
 
 			format(tmpstring, sizeof(tmpstring), "[ZTDE]: Project exported to %s.txt in scriptfiles directory.", CurrentProject);
 	        SendClientMessage(playerid, MSG_COLOR, tmpstring);
-	        SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: Fuction `PlayerTextDraw add by adri1");
+	        SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: Fuction `PlayerTextDraw` add by adri1");
 	    }
 
 		case 8: { // Mixed export mode

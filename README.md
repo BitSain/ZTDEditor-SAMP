@@ -55,6 +55,10 @@ The TextDraw Editor was originally created by Zamaroht. I, BitSain, have continu
 - Ensured proper resource management and file/directory closing.
 - Added file opening checks and clear error messages.
 
+## Images
+Print of Textdraw Import.
+![Textdraw Import](https://github.com/BitSain/ZTDEditor-SAMP/blob/main/images/Screenshot_20240611-102435.png)
+
 ## Important
 Remember, to be able to use your creations, you must select the Export option from the menu. The .tde and .lst files are used internally by the Editor and should not be modified or used by humans.
 

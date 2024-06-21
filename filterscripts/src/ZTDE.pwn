@@ -29,13 +29,14 @@
 #include <a_samp>
 #include <sscanf2>
 #include <filemanager>
-#include <Dini>
 #include <strlib>
+#include <Dini>
 
 #undef MAX_PLAYERS
 #define MAX_PLAYERS 10
-/*#define YSI_NO_CACHE_MESSAGE
-#define YSI_NO_OPTIMISATION_MESSAGE*/
+
+#define YSI_NO_CACHE_MESSAGE
+#define YSI_NO_OPTIMISATION_MESSAGE
 #define YSI_NO_VERSION_CHECK
 #define YSI_NO_HEAP_MALLOC
 
@@ -48,14 +49,24 @@
 // =============================================================================
 #define ZTDE_VERSION "v1.0.0"
 
-//#define ZTDE_DEBUG
+//Debug
+#define ZTDE_DEBUG true //true = enable | false = disable
+#define ZTDE_DEBUG_LEVEL 1 //0 = Disable | 1 = mínim details | 2 = medium details | 3 = max details
 
+#if ZTDE_DEBUG_LEVEL != 0
+    #if ZTDE_DEBUG == false
+        #error 'ZTDE_DEBUG' is disabled! Activate it.
+    #endif
+#endif
+
+//Macros
 #define function%0(%1) forward%0(%1); public%0(%1)
 
 #define MAX_TEXTDRAWS       	90					 // Max textdraws shown on client screen is 92. Using 90 to be on the safe side.
 #define MSG_COLOR           		0xFAF0CEFF	 	 // Color to be shown in the messages.
 #define PREVIEW_CHARS       	35					 // Amount of characters that show on the textdraw's preview.
 
+//Directories
 #define PROJECT_DIRECTORY "ztdeditor/Projects/%s"
 #define EXPORT_DIRECTORY "ztdeditor/ExportProjects/%s"
 #define IMPORT_DIRECTORY "ztdeditor/ImportTextDraws/"
@@ -119,6 +130,9 @@ new tData[MAX_TEXTDRAWS][enum_tData],
 	
 new CurrentProject[128]; // String containing the location of the current opened project file.
 
+// Database for the edit textdraws
+//new DB:EditTextDraws;
+
 // =============================================================================
 // 					->				Callbacks
 // =============================================================================
@@ -154,7 +168,7 @@ public OnFilterScriptExit() {
     }
     for(new i; i < MAX_TEXTDRAWS; i ++) {
 	    TextDrawHideForAll(tData[i][T_Handler]);
-	    TextDrawDestroy(tData[i][T_Handler]);
+	    if(tData[i][T_Created]) TextDrawDestroy(tData[i][T_Handler]);
 	}
 
 	print("[ZTDE]: Zamaroht's TextDraw Editor Unloaded. (Continued by BitSain)");
@@ -1526,10 +1540,11 @@ stock LoadProject(playerid, const filename[]) {
                 format(string, sizeof(string), "%dPMZoom", i);
                 if(dini_Isset(filedirectory, string))
                     tData[i][PMZoom] = dini_Float(filedirectory, string);
-                    
-                UpdateTextdraw(i);
             }
         }
+
+        UpdateAllTextDraws();
+
         strmid(CurrentProject, filename, 0, strlen(filename), 128);
         printf("[DEBUG ZTDE]: Current Project: %s", CurrentProject);
         ShowTextDrawDialog(playerid, 4);
@@ -2018,6 +2033,7 @@ stock ClearTextdraw(tdid) {
 	static const reset[enum_tData];
     tData[tdid] = reset;
 
+    tData[tdid][T_Handler] = Text:-1;
     tData[tdid][T_PreviewModel] = -1;
 }
 
@@ -2029,16 +2045,16 @@ stock CreateDefaultTextdraw(tdid, save = 1) {
 	format(tData[tdid][T_Text], 1024, "New Textdraw", 1);
     tData[tdid][T_X] = 250.0;
     tData[tdid][T_Y] = 10.0;
+    tData[tdid][T_TextSize][0] = 0.0;
+    tData[tdid][T_TextSize][1] = 0.0;
+    tData[tdid][T_Size][0] = 0.5;
+    tData[tdid][T_Size][1] = 1.0;
     tData[tdid][T_Alignment] = 0;
     tData[tdid][T_BackColor] = RGB(0, 0, 0, 255);
     tData[tdid][T_UseBox] = 0;
     tData[tdid][T_BoxColor] = RGB(0, 0, 0, 255);
-    tData[tdid][T_TextSize][0] = 0.0;
-    tData[tdid][T_TextSize][1] = 0.0;
     tData[tdid][T_Color] = RGB(255, 255, 255, 255);
     tData[tdid][T_Font] = 1;
-    tData[tdid][T_Size][0] = 0.5;
-    tData[tdid][T_Size][1] = 1.0;
     tData[tdid][T_Outline] = 0;
     tData[tdid][T_Proportional] = 1;
     tData[tdid][T_Shadow] = 1;
@@ -2112,10 +2128,11 @@ stock DuplicateTextdraw(source, to) {
 }
 
 stock UpdateTextdraw(tdid) {
-	if(!tData[tdid][T_Created]) return false;
-	TextDrawHideForAll(tData[tdid][T_Handler]);
-	TextDrawDestroy(tData[tdid][T_Handler]);
-	
+	if(tData[tdid][T_Created]){
+        TextDrawHideForAll(tData[tdid][T_Handler]);
+        TextDrawDestroy(tData[tdid][T_Handler]);
+    }
+
 	// Recreate it
 	tData[tdid][T_Handler] = TextDrawCreate(tData[tdid][T_X], tData[tdid][T_Y], tData[tdid][T_Text]);
 	TextDrawAlignment(tData[tdid][T_Handler], tData[tdid][T_Alignment]);
@@ -2133,10 +2150,10 @@ stock UpdateTextdraw(tdid) {
 	TextDrawSetShadow(tData[tdid][T_Handler], tData[tdid][T_Shadow]);
 	TextDrawSetSelectable(tData[tdid][T_Handler], tData[tdid][T_Selectable]);
 	if(tData[tdid][T_PreviewModel] > -1) {
-	    TextDrawSetPreviewModel(tData[tdid][T_Handler], tData[tdid][T_PreviewModel]);
-	    TextDrawSetPreviewRot(tData[tdid][T_Handler], tData[tdid][PMRotX], tData[tdid][PMRotY], tData[tdid][PMRotZ], tData[tdid][PMZoom]);
+    	TextDrawSetPreviewModel(tData[tdid][T_Handler], tData[tdid][T_PreviewModel]);
+    	TextDrawSetPreviewRot(tData[tdid][T_Handler], tData[tdid][PMRotX], tData[tdid][PMRotY], tData[tdid][PMRotZ], tData[tdid][PMZoom]);
 	}
-	
+
 	TextDrawShowForAll(tData[tdid][T_Handler]);
 	return true;
 }
@@ -2215,6 +2232,14 @@ stock SaveTDData(tdid, const data[]) {
 		dini_FloatSet(filename, string, tData[tdid][T_X]);
 	else if(!strcmp("T_Y", data))
 		dini_FloatSet(filename, string, tData[tdid][T_Y]);
+    else if(!strcmp("T_TextSizeX", data))
+        dini_FloatSet(filename, string, tData[tdid][T_TextSize][0]);
+    else if(!strcmp("T_TextSizeY", data))
+        dini_FloatSet(filename, string, tData[tdid][T_TextSize][1]);
+    else if(!strcmp("T_XSize", data))
+        dini_FloatSet(filename, string, tData[tdid][T_Size][0]);
+    else if(!strcmp("T_YSize", data))
+        dini_FloatSet(filename, string, tData[tdid][T_Size][1]);
 	else if(!strcmp("T_Alignment", data))
 		dini_IntSet(filename, string, tData[tdid][T_Alignment]);
 	else if(!strcmp("T_BackColor", data))
@@ -2223,18 +2248,10 @@ stock SaveTDData(tdid, const data[]) {
 		dini_IntSet(filename, string, tData[tdid][T_UseBox]);
 	else if(!strcmp("T_BoxColor", data))
 		dini_IntSet(filename, string, tData[tdid][T_BoxColor]);
-    else if(!strcmp("T_TextSizeX", data))
-		dini_FloatSet(filename, string, tData[tdid][T_TextSize][0]);
-    else if(!strcmp("T_TextSizeY", data))
-		dini_FloatSet(filename, string, tData[tdid][T_TextSize][1]);
     else if(!strcmp("T_Color", data))
 		dini_IntSet(filename, string, tData[tdid][T_Color]);
     else if(!strcmp("T_Font", data))
 		dini_IntSet(filename, string, tData[tdid][T_Font]);
-    else if(!strcmp("T_XSize", data))
-		dini_FloatSet(filename, string, tData[tdid][T_Size][0]);
-    else if(!strcmp("T_YSize", data))
-		dini_FloatSet(filename, string, tData[tdid][T_Size][1]);
     else if(!strcmp("T_Outline", data))
 		dini_IntSet(filename, string, tData[tdid][T_Outline]);
     else if(!strcmp("T_Proportional", data))
@@ -3240,7 +3257,7 @@ stock ExportProject(playerid, type) {
 	return true;
 }
 
-#include "src\modules\import.pwn" // Import TextDraws
+#include "src/modules/import.pwn" // Import TextDraws
 
 function ShowTextDrawDialogEx(playerid, dialogid){
 	return ShowTextDrawDialog(playerid, dialogid);

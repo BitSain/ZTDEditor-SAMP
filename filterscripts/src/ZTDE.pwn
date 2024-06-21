@@ -50,8 +50,8 @@
 #define ZTDE_VERSION "v1.0.0"
 
 //Debug
-#define ZTDE_DEBUG true //true = enable | false = disable
-#define ZTDE_DEBUG_LEVEL 1 //0 = Disable | 1 = mínim details | 2 = medium details | 3 = max details
+#define ZTDE_DEBUG true         //true = enable | false = disable
+#define ZTDE_DEBUG_LEVEL 1   //0 = Disable | 1 = mínim details | 2 = medium details | 3 = max details
 
 #if ZTDE_DEBUG_LEVEL != 0
     #if ZTDE_DEBUG == false
@@ -148,15 +148,6 @@ public OnFilterScriptInit() {
 	foreach(new i : Player){
 		ResetPlayerVars(i);
     }
-
-	for(new i; i < MAX_TEXTDRAWS; i ++) {
-	    tData[i][T_Handler] = TextDrawCreate(0.0, 0.0, " ");
-	    tData[i][T_PreviewModel] = -1;
-		tData[i][PMZoom] = 1.0;
-		tData[i][PMRotX] = -16.0;
-		tData[i][PMRotY] = 0.0;
-		tData[i][PMRotZ] = -55.0;
-	}
 	return true;
 }
 
@@ -181,7 +172,7 @@ public OnPlayerConnect(playerid) {
     if(!strlen(CurrentProject) || !strcmp(CurrentProject, " ")) {
     	for(new i; i < MAX_TEXTDRAWS; i ++) {
     	    if(tData[i][T_Created])
-    	        TextDrawShowForPlayer(playerid, tData[i][T_Handler]);
+    	        TextDrawHideForPlayer(playerid, tData[i][T_Handler]);
     	}
     }
 	return true;
@@ -200,9 +191,9 @@ public OnPlayerRequestSpawn(playerid) {
 
 public OnPlayerCommandText(playerid, cmdtext[]) {
 	if(!strcmp(cmdtext, "/zHelp", true)){
-		SendClientMessage(playerid, MSG_COLOR, "[ZTDE Commands]: /zHelp");
-		SendClientMessage(playerid, MSG_COLOR, "[ZTDE Commands]: /Text");
-		SendClientMessage(playerid, MSG_COLOR, "[ZTDE Commands]: /ImportTextDraw");
+        SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: Building...");
+        SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: /zHelp");
+        SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: /Text");
 		return true;
 	}
 	else if(!strcmp(cmdtext, "/Text", true)){
@@ -224,15 +215,6 @@ public OnPlayerCommandText(playerid, cmdtext[]) {
 		    pData[playerid][P_Editing] = true;
             return true;
 		}
-	}
-	else if(!strcmp(cmdtext, "/ImportTextDraw", true)){
-        if(!strlen(CurrentProject) || !strcmp(CurrentProject, " ")){
-            SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: Para importar textdraws, crie um novo projeto primeiro.");
-            return false;
-        } else {
-    		ImportTextDraws(playerid);
-    		return true;
-        }
 	}
 	return false;
 }
@@ -357,7 +339,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                     }
                     case 1: // They selected export
                         ShowTextDrawDialog(playerid, 25);
-                    case 2: // They selected close project
+                    case 2: // They selected export
+                        ImportTextDraws(playerid);
+                    case 3: // They selected close project
                         if(IsPlayerMinID(playerid)) {
                             for(new i; i < MAX_TEXTDRAWS; i++) {
                                 ClearTextdraw(i);
@@ -372,8 +356,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                             ShowTextDrawDialog(playerid, 4);
                         }
                     default:
-                        if(listitem <= 10) { // They selected a TD
-                            new id = 3;
+                        if(listitem <= 11) { // They selected a TD
+                            new id = 4;
                             for(new i = pData[playerid][P_DialogPage]; i < MAX_TEXTDRAWS; i++) {
                                 if(tData[i][T_Created]) {
                                     if(id == listitem) {
@@ -394,7 +378,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                                 if(tData[i][T_Created]) {
                                     itemcount++;
                                     BiggestID = i;
-                                    if(itemcount == 9) break;
+                                    if(itemcount == 10) break;
                                 }
                             }
                             ShowTextDrawDialog(playerid, 4, BiggestID);
@@ -1677,6 +1661,8 @@ stock ShowTextDrawDialog(playerid, dialogid, aux = 0, aux2 = 0){
 	        shown ++;
 	        format(info, sizeof(info), "%s\nExport project...", info);
 	        shown ++;
+            format(info, sizeof(info), "%s\nImport project...", info);
+            shown ++;
 	        format(info, sizeof(info), "%s\nClose project...", info);
 	        shown ++;
 	        // Aux here is used to indicate from which TD show the list from.
@@ -1684,7 +1670,7 @@ stock ShowTextDrawDialog(playerid, dialogid, aux = 0, aux2 = 0){
 	        for(new i = aux; i < MAX_TEXTDRAWS; i++) {
 	            if(tData[i][T_Created]) {
 	                shown ++;
-					if(shown == 12) {
+					if(shown == 13) {
 						format(info, sizeof(info), "%s\nMore >>", info);
 						break;
 					}
@@ -1907,7 +1893,7 @@ stock ShowTextDrawDialog(playerid, dialogid, aux = 0, aux2 = 0){
 	    
 	    case 25: {
 	        new info[256];
-	        info = "Classic export mode\nSelf-working filterscript\nPlayerTextDraw\nMixed export mode\nConvert export mode";
+	        info = "Classic export mode\nSelf-working filterscript\nPlayerTextDraw\nMixed export mode";
 	        ShowPlayerDialog(playerid, dialogid+1574, DIALOG_STYLE_LIST, CreateDialogTitle(playerid, "Textdraw's export"), info, "Accept", "Go back");
 	        return true;
 	    }
@@ -2042,6 +2028,7 @@ stock CreateDefaultTextdraw(tdid, save = 1) {
 		@tdid:          Textdraw ID
 	*/
 	tData[tdid][T_Created] = true;
+    tData[tdid][T_Handler] = TextDrawCreate(0.0, 0.0, " ");
 	format(tData[tdid][T_Text], 1024, "New Textdraw", 1);
     tData[tdid][T_X] = 250.0;
     tData[tdid][T_Y] = 10.0;
@@ -2158,63 +2145,6 @@ stock UpdateTextdraw(tdid) {
 	return true;
 }
 
-stock DeleteTDFromFile(tdid) {
-    /*  Deletes a specific textdraw from its .tde file
-	    @tdid:              Textdraw ID.
-	*/
-	new string[128], filename[135];
-	format(filename, sizeof(filename), PROJECT_DIRECTORY, CurrentProject);
-	
-	format(string, sizeof(string), "%dT_Created", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_Text", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_X", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_Y", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_Alignment", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_BackColor", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_UseBox", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_BoxColor", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_TextSizeX", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_TextSizeY", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_Color", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_Font", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_XSize", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_YSize", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_Outline", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_Proportional", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_Shadow", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_Selectable", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_Mode", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dT_PreviewModel", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dPMRotX", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dPMRotY", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dPMRotZ", tdid);
-	dini_Unset(filename, string);
-	format(string, sizeof(string), "%dPMZoom", tdid);
-	dini_Unset(filename, string);
-}
-
 stock SaveTDData(tdid, const data[]) {
 	/*  Saves a specific data from a specific textdraw to project file.
 	    @tdid:              Textdraw ID.
@@ -2223,7 +2153,7 @@ stock SaveTDData(tdid, const data[]) {
 	new string[128], filename[135];
 	format(string, sizeof(string), "%d%s", tdid, data);
 	format(filename, sizeof(filename), PROJECT_DIRECTORY, CurrentProject);
-	
+
 	if(!strcmp("T_Created", data))
         dini_IntSet(filename, string, 1);
 	else if(!strcmp("T_Text", data))
@@ -2277,6 +2207,63 @@ stock SaveTDData(tdid, const data[]) {
 	    return false;
     }
     return true;
+}
+
+stock DeleteTDFromFile(tdid) {
+    /*  Deletes a specific textdraw from its .tde file
+        @tdid:              Textdraw ID.
+    */
+    new string[128], filename[135];
+    format(filename, sizeof(filename), PROJECT_DIRECTORY, CurrentProject);
+    
+    format(string, sizeof(string), "%dT_Created", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_Text", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_X", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_Y", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_Alignment", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_BackColor", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_UseBox", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_BoxColor", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_TextSizeX", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_TextSizeY", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_Color", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_Font", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_XSize", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_YSize", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_Outline", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_Proportional", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_Shadow", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_Selectable", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_Mode", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dT_PreviewModel", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dPMRotX", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dPMRotY", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dPMRotZ", tdid);
+    dini_Unset(filename, string);
+    format(string, sizeof(string), "%dPMZoom", tdid);
+    dini_Unset(filename, string);
 }
 
 stock ExportProject(playerid, type) {

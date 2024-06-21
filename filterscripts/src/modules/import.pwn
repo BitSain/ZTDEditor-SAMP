@@ -1309,6 +1309,8 @@ stock ImportTextDraws(playerid){
 			            }*/
 			        }
 			    }
+				// Were done importing
+				fclose(f);
 
 				UpdateAllTextDraws();
 
@@ -1318,10 +1320,11 @@ stock ImportTextDraws(playerid){
 				format(buffer, sizeof(buffer), "[ZTDE]: %i Global TextDraws | %i Player TextDraws", gcount, pcount);
 				SendClientMessage(playerid, MSG_COLOR, buffer);
 
-				// Were done importing
-				fclose(f);
-
+				SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: Saving all textdraws. Wait!");
 			    SaveAllTextDraws();
+				SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: All textdraws have been saved.");
+
+			    ShowTextDrawDialog(playerid, 4);
 				return true;
             }
 		}
@@ -1345,6 +1348,7 @@ stock SaveAllTextDraws(){
 stock SaveAllTDData(tdid){
 	if(!tData[tdid][T_Created]) return;
 
+	SaveTDData(tdid, "T_Created");
 	SaveTDData(tdid, "T_Text");
 	SaveTDData(tdid, "T_X"); 
  	SaveTDData(tdid, "T_Y");
@@ -1355,6 +1359,7 @@ stock SaveAllTDData(tdid){
 	SaveTDData(tdid, "T_Alignment");
 	SaveTDData(tdid, "T_Color");
 	SaveTDData(tdid, "T_Font");
+ 	SaveTDData(tdid, "T_Mode");
  	SaveTDData(tdid, "T_UseBox");
  	SaveTDData(tdid, "T_BoxColor");
 	SaveTDData(tdid, "T_Shadow");
@@ -1362,4 +1367,9 @@ stock SaveAllTDData(tdid){
 	SaveTDData(tdid, "T_BackColor");
 	SaveTDData(tdid, "T_Proportional");
 	SaveTDData(tdid, "T_Selectable");
+	SaveTDData(tdid, "T_PreviewModel");
+	SaveTDData(tdid, "PMRotX");
+	SaveTDData(tdid, "PMRotY");
+	SaveTDData(tdid, "PMRotZ");
+	SaveTDData(tdid, "PMZoom");
 }

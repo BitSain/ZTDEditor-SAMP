@@ -11,7 +11,7 @@ stock ImportTextDraws(playerid){
 		SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: Error opening directory to list files");
 		return false;
 	}
-	static item[64], itype,
+	new item[64], itype,
 		filedirectory[64],
 		files[1024],
 		fcount;
@@ -19,11 +19,11 @@ stock ImportTextDraws(playerid){
 	// Create a load list.
 	while(dir_list(directory, item, itype)) {
    		if(itype != FM_DIR) {
-   			format(files, sizeof(files), "%s\n", item);
+   			format(files, sizeof(files), "%s\n%s", item, files);
 			fcount++;
 	    }
 	}
-	strdel(files, strlen(files)-1, strlen(files)); // Delete '\n'
+	//strdel(files, strlen(files)-1, strlen(files)); // Delete '\n'
 
 	dir_close(directory);
 
@@ -37,7 +37,7 @@ stock ImportTextDraws(playerid){
 
 				format(filedirectory, sizeof(filedirectory), IMPORT_DIRECTORY2, stext);
 
-				static File:f,
+				new File:f,
 					buffer[750],
 						pos = -1,
 							tdid = -1,
@@ -1333,43 +1333,4 @@ stock ImportTextDraws(playerid){
 	}
 	else 
 		return SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: There are no Textdraws to be imported.");
-}
-
-stock UpdateAllTextDraws(){
-	for(new i = 0; i < MAX_TEXTDRAWS; i++)
-		if(tData[i][T_Created]) UpdateTextdraw(i);
-}
-
-stock SaveAllTextDraws(){
-	for(new i = 0; i < MAX_TEXTDRAWS; i++)
-		if(tData[i][T_Created]) SaveAllTDData(i);
-}
-
-stock SaveAllTDData(tdid){
-	if(!tData[tdid][T_Created]) return;
-
-	SaveTDData(tdid, "T_Created");
-	SaveTDData(tdid, "T_Text");
-	SaveTDData(tdid, "T_X"); 
- 	SaveTDData(tdid, "T_Y");
- 	SaveTDData(tdid, "T_XSize"); 
- 	SaveTDData(tdid, "T_YSize");
- 	SaveTDData(tdid, "T_TextSizeX"); 
- 	SaveTDData(tdid, "T_TextSizeY");
-	SaveTDData(tdid, "T_Alignment");
-	SaveTDData(tdid, "T_Color");
-	SaveTDData(tdid, "T_Font");
- 	SaveTDData(tdid, "T_Mode");
- 	SaveTDData(tdid, "T_UseBox");
- 	SaveTDData(tdid, "T_BoxColor");
-	SaveTDData(tdid, "T_Shadow");
-	SaveTDData(tdid, "T_Outline");
-	SaveTDData(tdid, "T_BackColor");
-	SaveTDData(tdid, "T_Proportional");
-	SaveTDData(tdid, "T_Selectable");
-	SaveTDData(tdid, "T_PreviewModel");
-	SaveTDData(tdid, "PMRotX");
-	SaveTDData(tdid, "PMRotY");
-	SaveTDData(tdid, "PMRotZ");
-	SaveTDData(tdid, "PMZoom");
 }

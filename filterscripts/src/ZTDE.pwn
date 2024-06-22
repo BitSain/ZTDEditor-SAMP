@@ -41,6 +41,7 @@
 #define YSI_NO_HEAP_MALLOC
 
 #include <YSI_Coding\y_inline>
+#include <YSI_Data\y_iterate>
 #include <YSI_Data\y_foreach>
 #include <YSI_Visual\y_dialog>
 
@@ -127,11 +128,13 @@ enum enum_pData { // Player data.
 };
 new tData[MAX_TEXTDRAWS][enum_tData],
 	pData[MAX_PLAYERS][enum_pData];
-	
+
 new CurrentProject[128]; // String containing the location of the current opened project file.
 
 // Database for the edit textdraws
 //new DB:EditTextDraws;
+
+//new Iterator:zTextList<MAX_TEXT_DRAWS>;
 
 // =============================================================================
 // 					->				Callbacks
@@ -229,31 +232,44 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                 strmid(CurrentProject, "", 0, 1, 128);
         
                 switch(listitem) {
-                    case 0: // He pressed new project.
+                    case 0: { // He pressed new project.
                         ShowTextDrawDialog(playerid, 1);
-                    case 1: // He pressed load project.
+                        return true;
+                    }
+                    case 1: { // He pressed load project.
                         ShowTextDrawDialog(playerid, 2, 1);
-                    case 2: // He pressed delete project.
+                        return true;
+                    }
+                    case 2: { // He pressed delete project.
                         ShowTextDrawDialog(playerid, 2, 2);
+                        return true;
+                    }
                 }
-            } else {
+                return false;
+            } 
+            else {
                 pData[playerid][P_Editing] = false;
+                return true;
             }
-            return true;
         }
         
         case 1575: { // New Project (OPTIMIZED)
             if(response) {
                 if(strlen(inputtext) > 120) {
                     ShowTextDrawDialog(playerid, 1, 1); // Too long.
-                } else if(ContainsIllegalCharacters(inputtext) || !strlen(inputtext) || inputtext[0] == ' ') {
+                    return true;
+                } 
+                else if(ContainsIllegalCharacters(inputtext) || !strlen(inputtext) || inputtext[0] == ' ') {
                     ShowTextDrawDialog(playerid, 1, 3); // Illegal characters.
-                } else {
+                    return true;
+                } 
+                else {
                     new filename[128], filedirectory[256]; 
                     format(filename, sizeof(filename), "%s.tde", inputtext);
                     format(filedirectory, sizeof(filedirectory), PROJECT_DIRECTORY, filename);
                     if(fexist(filedirectory)) {
                         ShowTextDrawDialog(playerid, 1, 2); // Already exists.
+                        return true;
                     } else {
                         CreateNewProject(filename);
                         format(CurrentProject, sizeof(CurrentProject), filename);
@@ -263,12 +279,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                         SendClientMessage(playerid, MSG_COLOR, tmpstr);
                         
                         ShowTextDrawDialog(playerid, 4); // Show the main edition menu.
+                        return true;
                     }
                 }
-            } else {
+            } 
+            else {
                 ShowTextDrawDialog(playerid, 0);
+                return true;
             }
-            return true;
         }
         
         case 1576: { // Load/Delete project (OPTIMIZED)
@@ -277,20 +295,29 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                     if(listitem != 0) {
                         pData[playerid][P_Aux] = listitem - 1;
                         ShowTextDrawDialog(playerid, 6);
-                    } else {
+                        return true;
+                    } 
+                    else {
                         ShowTextDrawDialog(playerid, 0);
+                        return true;
                     }
-                } else if(pData[playerid][P_CurrentMenu] == LOADING) {
+                }
+                else if(pData[playerid][P_CurrentMenu] == LOADING) {
                     if(listitem != 0) {
                         new filename[135];
                         format(filename, sizeof(filename), "%s", GetFileNameFromLst("ztdeditor/tdlist.lst", listitem - 1));
                         LoadProject(playerid, filename);
-                    } else {
+                        return true;
+                    } 
+                    else {
                         ShowTextDrawDialog(playerid, 3);
+                        return true;
                     }
                 }
-            } else {
+            } 
+            else {
                 ShowTextDrawDialog(playerid, 0);
+                return true;
             }
             return true;
         }
@@ -302,16 +329,17 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                     return SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: The file format must be '.tde'");
                 }
                 LoadProject(playerid, directory);
+                return true;
             }
             else {
                 switch(pData[playerid][P_CurrentMenu]) {
                     case DELETING:
-                        ShowTextDrawDialog(playerid, 2, 2);
+                        return ShowTextDrawDialog(playerid, 2, 2);
                     case LOADING:
-                        ShowTextDrawDialog(playerid, 2);
+                        return ShowTextDrawDialog(playerid, 2);
                 }
+                return false;
             }
-            return true;
         }
         
         case 1578: { // Textdraw selection (OPTIMIZED)
@@ -321,7 +349,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                         pData[playerid][P_CurrentTextdraw] = -1;
                         for(new i; i < MAX_TEXTDRAWS; i++) {
                             if(!tData[i][T_Created]) { // If it isn't created yet, use it.
-                                ClearTextdraw(i);
+                                ClearTextDraw(i);
                                 CreateDefaultTextdraw(i);
                                 pData[playerid][P_CurrentTextdraw] = i;
                                 ShowTextDrawDialog(playerid, 4, pData[playerid][P_DialogPage]);
@@ -331,31 +359,40 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                         if(pData[playerid][P_CurrentTextdraw] == -1) {
                             SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: You can't create any more textdraws!");
                             ShowTextDrawDialog(playerid, 4, pData[playerid][P_DialogPage]);
+                            return true;
                         } else {
                             new string[128];
                             format(string, sizeof(string), "[ZTDE]: Textdraw #%d successfully created.", pData[playerid][P_CurrentTextdraw]);
                             SendClientMessage(playerid, MSG_COLOR, string);
+                            return true;
                         }
                     }
-                    case 1: // They selected export
+                    case 1: {// They selected export
                         ShowTextDrawDialog(playerid, 25);
-                    case 2: // They selected export
+                        return true;
+                    }
+                    case 2: { // They selected import
                         ImportTextDraws(playerid);
-                    case 3: // They selected close project
+                        return true;
+                    }
+                    case 3: { // They selected close project
                         if(IsPlayerMinID(playerid)) {
                             for(new i; i < MAX_TEXTDRAWS; i++) {
-                                ClearTextdraw(i);
+                                ClearTextDraw(i);
                             }
                             new string[128];
                             format(string, sizeof(string), "[ZTDE]: Project '%s' closed.", CurrentProject);
                             SendClientMessage(playerid, MSG_COLOR, string);
                             strmid(CurrentProject, " ", 128, 128);
                             ShowTextDrawDialog(playerid, 0);
+                            return true;
                         } else {
                             SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: Just the smaller player ID can manage projects. Ask him to open one.");
                             ShowTextDrawDialog(playerid, 4);
+                            return true;
                         }
-                    default:
+                    }
+                    default:{
                         if(listitem <= 11) { // They selected a TD
                             new id = 4;
                             for(new i = pData[playerid][P_DialogPage]; i < MAX_TEXTDRAWS; i++) {
@@ -372,23 +409,26 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                             new string[128];
                             format(string, sizeof(string), "[ZTDE]: You are now editing textdraw #%d", pData[playerid][P_CurrentTextdraw]);
                             SendClientMessage(playerid, MSG_COLOR, string);
+                            return true;
                         } else {
                             new BiggestID, itemcount;
                             for(new i = pData[playerid][P_DialogPage]; i < MAX_TEXTDRAWS; i++) {
                                 if(tData[i][T_Created]) {
                                     itemcount++;
                                     BiggestID = i;
-                                    if(itemcount == 10) break;
+                                    if(itemcount == 9) break;
                                 }
                             }
                             ShowTextDrawDialog(playerid, 4, BiggestID);
+                            return true;
                         }
+                    }
                 }
             } else {
                 pData[playerid][P_Editing] = false;
                 pData[playerid][P_DialogPage] = 0;
+                return true;
             }
-            return true;
         }
         
         case 1579: { // Main edition menu (OPTIMIZED)
@@ -439,7 +479,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                         new from, to;
                         for(new i; i < MAX_TEXTDRAWS; i++) {
                             if(!tData[i][T_Created]) { // If it isn't created yet, use it.
-                                ClearTextdraw(i);
+                                ClearTextDraw(i);
                                 CreateDefaultTextdraw(i);
                                 from = pData[playerid][P_CurrentTextdraw];
                                 to = i;
@@ -493,7 +533,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
         case 1581: { // Delete TD confirmation (OPTIMIZED)
             if(response) {
                 DeleteTDFromFile(pData[playerid][P_CurrentTextdraw]);
-                ClearTextdraw(pData[playerid][P_CurrentTextdraw]);
+                ClearTextDraw(pData[playerid][P_CurrentTextdraw]);
         
                 new message[128];
                 format(message, sizeof(message), "[ZTDE]: You have deleted textdraw #%d", pData[playerid][P_CurrentTextdraw]);
@@ -1324,32 +1364,59 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
         
         //By BitSain
         case 1614:{ // Others Options (OPTIMIZED)
-            if(!response)
+            if(!response){
                 ShowTextDrawDialog(playerid, 4);
+                return true;
+            }
         
             switch(listitem){
                 case 0:{ // Set All TextDraws in mode
                     ShowTextDrawDialog(playerid, 41);
-                }
-                case 1:{ // Reorder all TextDraws ID
-                    for(new i = 1; i < MAX_TEXTDRAWS; i++) {
-                        if(!tData[(i - 1)][T_Created] && tData[i][T_Created]) {
-                            CreateDefaultTextdraw((i - 1));
-                            ClearTextdraw((i - 1));
-                            DuplicateTextdraw(i, (i - 1));
+                    return true;
+                } 
+
+                case 1: { // Reorder All TextDraws ID
+                    new emptySlot = -1;
+                    for(new i = 0; i < MAX_TEXTDRAWS; i++) {
+                        if(!tData[i][T_Created]) {
+                            if(emptySlot == -1) emptySlot = i;
+                        } 
+                        else if(emptySlot != -1) {
+                            ClearTextDraw(emptySlot);
+                            DuplicateTextdraw(i, emptySlot);
                             DeleteTDFromFile(i);
-                            ClearTextdraw(i);
+                            ClearTextDraw(i);
+                            tData[emptySlot][T_Created] = true;
+                            tData[i][T_Created] = false;
+
+                            // Find the next empty slot
+                            for(new j = emptySlot + 1; j < MAX_TEXTDRAWS; j++) {
+                                if(!tData[j][T_Created]) {
+                                    emptySlot = j;
+                                    break;
+                                }
+                                if(j == MAX_TEXTDRAWS - 1) {
+                                    emptySlot = -1;
+                                }
+                            }
                         }
                     }
+
+                    SaveAllTextDraws();
                     SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: The ID of all TextDraws were reordered.");
                     ShowTextDrawDialog(playerid, 4);
+                    return true;
                 }
+
+                default:
+                    return false;
             }
-            return true;
         }
         case 1615:{ // Set All TextDraws in Mode (OPTIMIZED)
-            if(!response)
+            if(!response){
                 ShowTextDrawDialog(playerid, 40);
+                return true;
+            }
         
             switch(listitem){
                 case 0:{ //Type Global
@@ -1411,7 +1478,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys) {
 stock IsProjectFile(const filename[]) { //By BitSain
     new ending[5];
     strmid(ending, filename, strlen(filename) - 4, strlen(filename));
-    return strcmp(ending, ".tde") == 0;
+    return (strcmp(ending, ".tde") == 0);
 }
 
 stock LoadProject(playerid, const filename[]) {
@@ -2011,7 +2078,7 @@ stock ResetPlayerVars(playerid) {
 	strmid(CurrentProject, "", 0, 1, 128);
 }
 
-stock ClearTextdraw(tdid) {
+stock ClearTextDraw(tdid) {
 	/*	Resets a textdraw's variables and destroys it.
 	    @tdid:          Textdraw ID
 	*/
@@ -2088,30 +2155,7 @@ stock DuplicateTextdraw(source, to) {
     tData[to][PMZoom] = tData[source][PMZoom];
 	
 	UpdateTextdraw(to);
-	SaveTDData(to, "T_Created");
-	SaveTDData(to, "T_Text");
-	SaveTDData(to, "T_X");
-	SaveTDData(to, "T_Y");
-	SaveTDData(to, "T_Alignment");
-	SaveTDData(to, "T_BackColor");
-	SaveTDData(to, "T_UseBox");
-	SaveTDData(to, "T_BoxColor");
-    SaveTDData(to, "T_TextSizeX");
-    SaveTDData(to, "T_TextSizeY");
-    SaveTDData(to, "T_Color");
-    SaveTDData(to, "T_Font");
-    SaveTDData(to, "T_XSize");
-    SaveTDData(to, "T_YSize");
-    SaveTDData(to, "T_Outline");
-    SaveTDData(to, "T_Proportional");
-    SaveTDData(to, "T_Shadow");
-    SaveTDData(to, "T_Selectable");
-    SaveTDData(to, "T_Mode");
-    SaveTDData(to, "T_PreviewModel");
-    SaveTDData(to, "PMRotX");
-    SaveTDData(to, "PMRotY");
-    SaveTDData(to, "PMRotZ");
-    SaveTDData(to, "PMZoom");
+	SaveAllTDData(to);
 }
 
 stock UpdateTextdraw(tdid) {
@@ -2207,6 +2251,45 @@ stock SaveTDData(tdid, const data[]) {
 	    return false;
     }
     return true;
+}
+
+stock UpdateAllTextDraws(){
+    for(new i = 0; i < MAX_TEXTDRAWS; i++)
+        if(tData[i][T_Created]) UpdateTextdraw(i);
+}
+
+stock SaveAllTextDraws(){
+    for(new i = 0; i < MAX_TEXTDRAWS; i++)
+        if(tData[i][T_Created]) SaveAllTDData(i);
+}
+
+stock SaveAllTDData(tdid){
+    if(!tData[tdid][T_Created]) return;
+
+    SaveTDData(tdid, "T_Created");
+    SaveTDData(tdid, "T_Text");
+    SaveTDData(tdid, "T_X"); 
+    SaveTDData(tdid, "T_Y");
+    SaveTDData(tdid, "T_XSize"); 
+    SaveTDData(tdid, "T_YSize");
+    SaveTDData(tdid, "T_TextSizeX"); 
+    SaveTDData(tdid, "T_TextSizeY");
+    SaveTDData(tdid, "T_Alignment");
+    SaveTDData(tdid, "T_Color");
+    SaveTDData(tdid, "T_Font");
+    SaveTDData(tdid, "T_Mode");
+    SaveTDData(tdid, "T_UseBox");
+    SaveTDData(tdid, "T_BoxColor");
+    SaveTDData(tdid, "T_Shadow");
+    SaveTDData(tdid, "T_Outline");
+    SaveTDData(tdid, "T_BackColor");
+    SaveTDData(tdid, "T_Proportional");
+    SaveTDData(tdid, "T_Selectable");
+    SaveTDData(tdid, "T_PreviewModel");
+    SaveTDData(tdid, "PMRotX");
+    SaveTDData(tdid, "PMRotY");
+    SaveTDData(tdid, "PMRotZ");
+    SaveTDData(tdid, "PMZoom");
 }
 
 stock DeleteTDFromFile(tdid) {

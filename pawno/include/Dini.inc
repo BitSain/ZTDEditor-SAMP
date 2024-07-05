@@ -126,8 +126,8 @@ stock Float:dini_Float(const filename[], const key[]) {
    return floatstr(dini_Get(filename,key));
 }
 
-stock dini_Bool(const filename[], const key[]) {
-   return strval(dini_Get(filename,key));
+stock bool:dini_Bool(const filename[], const key[]) {
+   return bool:(strval(dini_Get(filename,key)));
 }
 
 stock dini_BoolSet(const filename[], const key[], value) {

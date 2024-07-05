@@ -51,12 +51,16 @@ stock ImportTextDraws(playerid){
 				}
 
 				// Read lines and import data
+				if(Iter_Count(zTextList) > 0) return SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: Use the empty project!");
+
+			    Iter_Clear(zTextList);
 				while(fread(f, buffer)) {
-					if(tdid == (MAX_TEXTDRAWS - 1)){ // 0..89 = 90 TEXTS
+					if(tdid == (MAX_TEXTDRAWS - 1)){
 						SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: TextDraws limit has been reached. The import stopped here.");
 						break;
 					}
 			        StripNewLine(buffer);
+
 
 			        if((pos = strfind(buffer, "TextDrawCreate", true)) != -1) {
 			       	 	tdid++;
@@ -103,6 +107,9 @@ stock ImportTextDraws(playerid){
 			            	#endif
 			            #endif
 			            //End
+
+			            CreateDefaultTextDraw(tdid, false, false);
+			            ClearTextDraw(tdid);
 
 			            tData[tdid][T_Created] = true;
 			            tData[tdid][T_Handler] = Text:-1;
@@ -163,8 +170,11 @@ stock ImportTextDraws(playerid){
 			            #endif
 			            //End
 
+			            CreateDefaultTextDraw(tdid, false, false);
+			            ClearTextDraw(tdid);
+
 			            tData[tdid][T_Created] = true;
-			            tData[tdid][T_Handler] = Text:-1;
+			            tData[tdid][T_Handler] = Text:INVALID_TEXT_DRAW;
 						tData[tdid][T_X] = x, tData[tdid][T_Y] = y;
 						format(tData[tdid][T_Text], 1536, buffer);
 						tData[tdid][T_Mode] = 1;
@@ -178,6 +188,8 @@ stock ImportTextDraws(playerid){
 
 			        if(tdid == -1 || !tData[tdid][T_Created])
 			        	continue;
+
+			        Iter_Add(zTextList, tdid);
 
 			        if(!tData[tdid][T_Mode]) { // Global
 			            if((pos = strfind(buffer, "TextDrawTextSize", true)) != -1) {
@@ -506,7 +518,7 @@ stock ImportTextDraws(playerid){
 			            }
 
 			            if((pos = strfind(buffer, "TextDrawSetProportional", true)) != -1) {
-			                new set;
+			                new bool:set = false;
 			                //Debug
 				            #if ZTDE_DEBUG_LEVEL != 0
 				            	#if ZTDE_DEBUG_LEVEL == 1
@@ -534,7 +546,7 @@ stock ImportTextDraws(playerid){
 
 			                tData[tdid][T_Proportional] = set;
 							#if ZTDE_DEBUG == true
-								printf("[IMPORT]: TextDrawSetProportional(%d, %d);\n", tdid, set);
+								printf("[IMPORT]: TextDrawSetProportional(%d, %s);\n", tdid, set == true ? ("true") : ("false"));
 							#endif
 			            }
 
@@ -1101,7 +1113,7 @@ stock ImportTextDraws(playerid){
 			            }
 
 			            if((pos = strfind(buffer, "PlayerTextDrawSetProportional", true)) != -1) {
-			                new set;
+			                new bool:set = false;
 			                //Debug
 				            #if ZTDE_DEBUG_LEVEL != 0
 				            	#if ZTDE_DEBUG_LEVEL == 1
@@ -1137,7 +1149,7 @@ stock ImportTextDraws(playerid){
 
 			                tData[tdid][T_Proportional] = set;
 							#if ZTDE_DEBUG == true
-								printf("[IMPORT]: PlayerTextDrawSetProportional(all, %d, %d);\n", tdid, set);
+								printf("[IMPORT]: PlayerTextDrawSetProportional(all, %d, %s);\n", tdid, set == true ? ("true") : ("false"));
 							#endif
 			            }
 
@@ -1327,6 +1339,8 @@ stock ImportTextDraws(playerid){
 			    ShowTextDrawDialog(playerid, 4);
 				return true;
             }
+            else
+            	return ShowTextDrawDialog(playerid, 4, pData[playerid][P_DialogPage]);
 		}
         Dialog_ShowCallback(playerid, using inline Select, DIALOG_STYLE_LIST, "[ZTDEditor] Import TextDraws", files, "Import", "Cancel");
 	 	return true;
@@ -1334,3 +1348,16 @@ stock ImportTextDraws(playerid){
 	else 
 		return SendClientMessage(playerid, MSG_COLOR, "[ZTDE]: There are no Textdraws to be imported.");
 }
+
+
+////////////////////////
+
+
+/*stock ImportProject(playerid){
+	if(IsNTDFile()){
+	
+	}
+	else {
+	
+	}
+}*/

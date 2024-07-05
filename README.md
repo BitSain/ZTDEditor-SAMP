@@ -45,15 +45,27 @@ The TextDraw Editor was originally created by Zamaroht. I, BitSain, have continu
 - Improved stability and error handling.
 
 ## Current Version Changelog (pre v1.1.0)
-- 70% of the code has been optimized, covering 100% of the project.
-- Added a directory folder for ZTDE.
-- Added preliminary version of TextDraw import.
-- Implemented help command `/zHelp`.
+- Optimized 100% of the codebase.
+- Added directory folder for ZTDE.
+- Import of Textdraws completed. (I test the editor's stuff myself, and I say that this is beyond 1000%).
+- Implemented help command /zHelp.
 - Corrected string concatenation in project loading.
-- Increased the size of the 'info' array for better string storage.
-- Improved handling of directories and files, avoiding server crashes.
+- Improved handling of directories and files to avoid crashes.
 - Ensured proper resource management and file/directory closing.
 - Added file opening checks and clear error messages.
+- Added `y_iterate` include for TDID manipulation with lists.
+- Implemented Back Button functionality.
+- Fixed "ISSUE 2" related to TextSize in UpdateTextdraw.
+- Improved "Reorder TextDraws IDs" under "Others Options".
+- Refined project description in "ZTDE.pwn".
+- Enhanced editor functions for TextDraw adaptation using `y_iterate.inc`.
+- Implemented character replacement in "Change TD String" to avoid line breaks.
+- Increased maximum TextDraws from 90 to 256.
+- Removed '/importtextdraw' command, integrated into '/text' dialog.
+- Added DEBUG Enable/Disable and Debug Levels feature.
+- Corrected ZTDE messages and implemented "ScriptMessage" macro.
+- Fixed logical issues and verifications using TextDraw T_Handler.
+- Restricted '/text' usage during TextDraw reordering.
 
 ## Images
 Print of Textdraw Import.

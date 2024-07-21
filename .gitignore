@@ -11,6 +11,8 @@ samp.ban
 
 # --> Files/Directories
 
+originalscript/
+
 # Compiled Bytecode, precompiled output and assembly
 *.amx
 *.lst

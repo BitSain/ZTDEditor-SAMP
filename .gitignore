@@ -1,0 +1,17 @@
+# --> Server related files
+
+# logs
+logs/
+server_log.txt
+crashinfo.txt
+
+# Ban list
+samp.ban
+
+
+# --> Files/Directories
+
+# Compiled Bytecode, precompiled output and assembly
+*.amx
+*.lst
+*.asm

@@ -75,13 +75,15 @@ Print of Textdraw Import.
 Remember, to be able to use your creations, you must select the Export option from the menu. The .tde and .lst files are used internally by the Editor and should not be modified or used by humans.
 
 ## Credits
-- 'Zamaroht' Nicolás Laurito (Author and Creator of version v1.0.0)
-- BitSain (Repository creator and project continuer from v1.0.0)
-- nexquery (Code for importing textdraws from one of his [tde projects](https://github.com/nexquery/samp-textdraw-editor) was reused)
-- Y_Less (YSI includes & sscanf2)
-- JaTochNietDan (filemanager plugin)
-- oscar-broman (strlib)
-- Dini and dutils functions were used by DracoBlue.
+| Name                          | Credits                                                                                        |
+|-------------------------------|------------------------------------------------------------------------------------------------|
+| [Zamaroht](https://github.com/Zamaroht)     | Official creator of Zamaroht's TextDraw Editor, providing the foundational code and features.   |
+| [BitSain](https://github.com/bitsain/)  | Project continuer and "owner" of the Zamaroht's TextDraw Editor (ZTDE) repository, maintaining and enhancing the project. |
+| [nexquery](https://github.com/nexquery/) | Reused code for importing textdraws from one of his [TDE projects](https://github.com/nexquery/samp-textdraw-editor), contributing to functionality. |
+| [Y_Less](https://github.com/y-less)     | Creator of the [YSI Library](https://github.com/pawn-lang/YSI-Includes) and [sscanf](https://github.com/Y-Less/sscanf), providing essential tools for scripting. |
+| [JaTochNietDan](https://github.com/JaTochNietDan) | Author of the [SA-MP FileManager](https://github.com/JaTochNietDan/SA-MP-FileManager) plugin, which facilitates file management in SA-MP. |
+| [oscar-broman](https://github.com/oscar-broman) | Developer of [strlib](https://github.com/oscar-broman/strlib), a string manipulation library used in the project. |
+| [DracoBlue](https://github.com/DracoBlue) | Provided [Dini 1.6](https://dracoblue.net/downloads/dini/) and [dutils](https://dracoblue.net/downloads/dutils/), offering utility functions for the project. |
 
 ## Disclaimer
 - You do not need to include me in your credits if you used this filterscript to create your textdraws.
